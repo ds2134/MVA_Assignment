@@ -1,5 +1,5 @@
 ---
-title: "MVA Assignment-1"
+title: "MVA Assignment_1"
 author: "Deviprasad Saka"
 date: "2024-02-15"
 output: html_document
@@ -20,7 +20,7 @@ print(data)
 
 ```{r}
 #Q1: What is the relationship between the Cost_of_Living_Index (independent variable) and
-#the Happiness_Score (dependent variable) in regions with varying levels of economic development?
+#the Happiness_Score (dependent variable) ?
 
 # Load required libraries
 library(ggplot2)
