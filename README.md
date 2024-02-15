@@ -23,7 +23,7 @@ print(data)
 
 ```{r}
 Q1: What is the relationship between the Cost_of_Living_Index (independent variable) and
-the Happiness_Score (dependent variable) in regions with varying levels of economic development?
+the Happiness_Score (dependent variable) ?
 
 # Load required libraries
 library(ggplot2)
