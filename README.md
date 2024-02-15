@@ -38,7 +38,7 @@ print(correlation)
 ![](plots/cor1.png)<!-- -->
 
 ```{r}
-# Result: Correlation coefficient of 0.4595364 indicates a moderate positive correlation between Cost_of_Living_Index and Happiness_Score, meaning they tend to move together in the same direction to a moderate degree.
+Result: Correlation coefficient of 0.4595364 indicates a moderate positive correlation between Cost_of_Living_Index and Happiness_Score, meaning they tend to move together in the same direction to a moderate degree.
 ```
 
 ```{r}
@@ -62,10 +62,10 @@ correlation <- cor(data$Green_Space_Area, data$Air_Quality_Index)
 # Print the correlation coefficient
 print(correlation)
 ```
-![](plots/cor3.png)<!-- -->
+![](plots/cor2.png)<!-- -->
 
 ```{r}
-# Result: A correlation coefficient of -0.4092952 indicates a moderate negative correlation between Green_Space_Area and Air_Quality_Index.
+Result: A correlation coefficient of -0.4092952 indicates a moderate negative correlation between Green_Space_Area and Air_Quality_Index.
 ```
 
 
