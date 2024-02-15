@@ -79,3 +79,9 @@ plot(data$Green_Space_Area, data$Air_Quality_Index,
 ```
 ![](plots/Rplot.png)<!-- -->
 
+```{r}
+In summary, the Correlation coefficient of 0.4595364 indicates a moderate positive correlation between Cost_of_Living_Index and Happiness_Score, meaning they tend to move together in the same direction to a moderate degree.
+A correlation coefficient of -0.4092952 indicates a moderate negative correlation between Green_Space_Area and Air_Quality_Index
+
+```
+
