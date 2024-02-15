@@ -2,7 +2,7 @@
 
 
 ---
-title: "MVA Assignment-1"
+title: "MVA Assignment_1"
 author: "Deviprasad Saka"
 date: "2024-02-15"
 output: html_document
@@ -22,8 +22,8 @@ print(data)
 ![](plots/DS.png)<!-- -->
 
 ```{r}
-#Q1: What is the relationship between the Cost_of_Living_Index (independent variable) and
-#the Happiness_Score (dependent variable) in regions with varying levels of economic development?
+Q1: What is the relationship between the Cost_of_Living_Index (independent variable) and
+the Happiness_Score (dependent variable) in regions with varying levels of economic development?
 
 # Load required libraries
 library(ggplot2)
@@ -52,8 +52,8 @@ plot(data$Cost_of_Living_Index, data$Happiness_Score,
 ![](plots/Rplot01.png)<!-- -->
 
 ```{r}
-#Q2: How does the availability of green space (Green_Space_Area) 
-#correlate with air quality (Air_Quality_Index) in the studied area?
+Q2: How does the availability of green space (Green_Space_Area) 
+correlate with air quality (Air_Quality_Index) in the studied area?
 
 
 # Calculate the correlation coefficient
@@ -79,9 +79,5 @@ plot(data$Green_Space_Area, data$Air_Quality_Index,
 ```
 ![](plots/Rplot.png)<!-- -->
 
-```{r}
-In summary, the Correlation coefficient of 0.4595364 indicates a moderate positive correlation between Cost_of_Living_Index and Happiness_Score, meaning they tend to move together in the same direction to a moderate degree.
-A correlation coefficient of -0.4092952 indicates a moderate negative correlation between Green_Space_Area and Air_Quality_Index
 
-```
 
