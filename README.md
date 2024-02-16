@@ -7,6 +7,26 @@ author: "Deviprasad Saka"
 date: "2024-02-15"
 output: html_document
 ---
+1.Ask an important question you want answered?
+i. What is the relationship between the Cost_of_Living_Index (independent variable)
+and the Happiness_Score (dependent variable) in regions?
+ii. How does the availability of green space (Green_Space_Area)
+correlate with air quality (Air_Quality_Index) in the studied area?
+
+2.Answer why this question(s) is/are important to you?
+i. Cost of Living and Happiness Score Relationship: Knowing the human relationship
+kind out of the Cost_of_Living_Index and the Happiness_Score in regions with various
+economic. It serves for measuring the availability of common amenities (such as rent, 
+doors, water, etc.) that influence the living conditions and mood of the members of society.
+This knowledge shall be used for resolve the problem of social inequality and further
+improve life standards of all community members irrespective of economic status.
+
+ii. Green Space and Air Quality Correlation: Answering the query on whether Green_Space_Area 
+and Air_Quality_Index are connected is necessary for environmental. Green platforms are
+among the directions in which the breathing becomes pure again as they suck out pollutants
+physically and improve air quality. It has great significance for in making decisions on the
+preservation and expansion of green areas to support the healthier living conditions for
+negative reasons pollution can affect the health of a person.
 
 
 ```{r}
@@ -21,6 +41,50 @@ print(data)
 ```
 ![](plots/DS.png)<!-- -->
 
+
+---
+3.Find and collect data (need one dependent variable and more than 3 independent variables)?
+Dependent variable: Happiness_Score
+Independent variables: Decibel_Level, Traffic_Density, Green_Space_Area,
+Air_Quality_Index, Cost_of_Living_Index, Healthcare_Index
+
+The Happiness Score is likely to be influenced by factors such as 
+noise level (Decibel_Level), traffic density (Traffic_Density), availability of
+green spaces (Green_Space_Area), air quality (Air_Quality_Index), cost of living (Cost_of_Living_Index),
+and healthcare quality (Healthcare_Index). Therefore, the Happiness Score is the dependent variable,
+while the rest are independent variables
+
+4.Describe your data ?
+Decibel_Level (Integer): It could be, in fact, that the referred factor is the
+indicator of noise level of some specific territory. Decibel level assignment is
+the most widespread world-wide; this normally means the louder atmosphere.
+
+Traffic_Density (Character): This variable apparently is about the traffic on the block
+in a given area
+
+Green_Space_Area (integer): The alternating green value evidently contains information
+on the degree of green space or vegetation cover in the said area. The concept of green 
+area could be park, garden, or any natural area availability.
+
+Air_Quality_Index (Integer): Likely, the dispersion of different types of gases is monitored 
+through the analysis of atmospheric conditions in a selected area. Air quality index (AQI) is 
+a commonly used standardize parameter which conveys the severity of air pollution and the
+consequent health issues.
+
+Happiness_Score (Num): That variation just could be an index of the subjectively perceiving 
+emotional state or happiness of a particular area. 
+
+Cost_of_Living_Index (Integer): This variable is most likely to be interpreted as the expense
+area of a particular locality. It generally higher level considers the issues of a place to live,
+food, utilities, car and trips, emergency care.
+
+Healthcare_Index (Integer): The inconstant factor could be both the quality of healthcare or the
+ease of access in the specified settings. The main components of a healthcare index may include 
+the number of healthcare facilities operating, healthcare professionals available, medical
+technology in use and the overall quality of patient outcomes.
+
+
+---
 ```{r}
 Q1: What is the relationship between the Cost_of_Living_Index (independent variable) and
 the Happiness_Score (dependent variable) ?
@@ -38,7 +102,8 @@ print(correlation)
 ![](plots/cor1.png)<!-- -->
 
 ```{r}
-Result: Correlation coefficient of 0.4595364 indicates a moderate positive correlation between Cost_of_Living_Index and Happiness_Score, meaning they tend to move together in the same direction to a moderate degree.
+Result: Correlation coefficient of 0.4595364 indicates a moderate positive correlation between
+Cost_of_Living_Index and Happiness_Score, meaning they tend to move together in the same direction to a moderate degree.
 ```
 
 ```{r}
@@ -65,7 +130,8 @@ print(correlation)
 ![](plots/cor2.png)<!-- -->
 
 ```{r}
-Result: A correlation coefficient of -0.4092952 indicates a moderate negative correlation between Green_Space_Area and Air_Quality_Index.
+Result: A correlation coefficient of -0.4092952 indicates a moderate negative correlation
+ between Green_Space_Area and Air_Quality_Index.
 ```
 
 
