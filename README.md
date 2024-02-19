@@ -254,11 +254,14 @@ pairs(data[selected_vars])
 Visualization: Pair_plot of Decibel_Level, Air_Quality_Index & Healthcare_Index
 
 The graph depicts the relationship between Decibel level, air quality index and healthcare index.
+
 1.Decibel level and Air quality index – Here we can see a clear upward trend, as the decibel level
  increase the air quality index values are also increasing.
+ 
 2.Air quality index and healthcare index – As expected, the air quality index and healthcare index
  are very strongly related. Higher the healthcare index, better is the air quality index. As the air
  quality index gets bad, the healthcare index also gets low.
+ 
 3.Decibel level and healthcare index – Decibel levels and healthcare index have a strong 
 linear relationship. Healthcare index is low when decibels are high clearly showing that healthcare
  is better in areas with less decibel levels.
