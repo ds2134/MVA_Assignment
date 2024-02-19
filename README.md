@@ -145,5 +145,79 @@ plot(data$Green_Space_Area, data$Air_Quality_Index,
 ```
 ![](plots/Rplot.png)<!-- -->
 
+```
+title: 'Exploratory Data Analysis (EDA): Visualization'
+```
+
+```{r}
+# Provide the file path to CSV file
+file_path <- "D:/Multivariate Analysis/Assignment-1/train US new.csv"
+
+# Import the CSV file into R
+data <- read.csv(file_path)
+
+# View the imported data
+print(data)
+```
+
+![](plots1/dataset.png)<!-- -->
+
+
+```{r}
+hist(data$Air_Quality_Index)
+```
+
+![](plots1/Hist.png)<!-- -->
+
+```{r}
+plot(density(data$Air_Quality_Index))
+```
+
+![](plots1/Denplot.png)<!-- -->
+
+
+```{r}
+library(ggplot2)
+
+ggplot(data, aes(x = Traffic_Density, y = Air_Quality_Index)) +
+  stat_summary(fun = mean, geom = "bar", fill = "blue")
+```
+
+![](plots1/bar.png)<!-- -->
+
+
+```{r}
+
+# Calculate correlation coefficient
+correlation_coefficient <- cor(data$Cost_of_Living_Index, data$Happiness_Score)
+# Plot scatter plot
+ggplot(data, aes(x = Cost_of_Living_Index, y = Healthcare_Index)) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE) +  # Add linear regression line
+  labs(title = "Relationship between Cost of Living Index and Happiness Score",
+       x = "Cost of Living Index",
+       y = "Happiness Score") +
+  annotate("text", x = Inf, y = Inf, 
+           label = paste("Correlation coefficient:", round(correlation_coefficient, 2)), 
+           hjust = 1, vjust = 1, size = 4, color = "red")
+```
+![](plots1/correlation.png)<!-- -->
+
+
+```{r}
+
+# Install and load the GGally package
+library(GGally)
+# Select the relevant variables from your dataset
+selected_vars <- c("Decibel_Level", 
+                   "Air_Quality_Index", "Healthcare_Index")
+# Create a pair plot
+pairs(data[selected_vars])
+```
+![](plots1/pairplot.png)<!-- -->
+
+
+
+
 
 
