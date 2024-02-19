@@ -175,7 +175,7 @@ hist(data$Air_Quality_Index)
 Visualization: Histogram of Air quality index
 
 The histogram shows the distribution of Air quality Index. It means that most of the Air quality
-index falls in the lower ranges, and is distributed to the right. The frequency of AQI around 0-40 is more.
+index falls in the lower ranges, and is distributed to the right. The frequency of AQI between 0-40 is more.
 
 ```{r}
 plot(density(data$Air_Quality_Index))
