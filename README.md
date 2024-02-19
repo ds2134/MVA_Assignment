@@ -178,12 +178,15 @@ Visualization: Histogram of Air quality index
 The histogram shows the distribution of Air quality Index. It means that most of the Air quality
 index falls in the lower ranges, and is distributed to the right. The frequency of AQI between 0-40 is more.
 
+
+Question :  What is the distribution of Air quality Index in terms of density ploy?
 ```{r}
 plot(density(data$Air_Quality_Index))
 ```
-Visualization: Density plot of Air quality index
+
 
 ![](plots1/Denplot.png)<!-- -->
+Visualization: Density plot of Air quality index
 
 A bandwidth of 1.905 implies a moderate level of smoothing, resulting in a density plot
 that is neither overly smooth nor overly sensitive to local variations in the data.
