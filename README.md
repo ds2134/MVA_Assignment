@@ -145,9 +145,9 @@ plot(data$Green_Space_Area, data$Air_Quality_Index,
 ```
 ![](plots/Rplot.png)<!-- -->
 
-```
+
 Title: 'Exploratory Data Analysis (EDA): Visualization'
-```
+
 
 ```{r}
 # Provide the file path to CSV file
@@ -162,6 +162,9 @@ print(data)
 
 ![](plots1/dataset.png)<!-- -->
 
+1. Univariate Analysis:
+
+Question : What is the distribution of Air quality Index?
 
 ```{r}
 hist(data$Air_Quality_Index)
@@ -169,22 +172,42 @@ hist(data$Air_Quality_Index)
 
 ![](plots1/Hist.png)<!-- -->
 
+Visualization: Histogram of Air quality index
+
+The histogram shows the distribution of Air quality Index. It means that most of the Air quality
+index falls in the lower ranges, and is distributed to the right. The frequency of AQI around 0-40 is more.
+
 ```{r}
 plot(density(data$Air_Quality_Index))
 ```
+Visualization: Density plot of Air quality index
 
 ![](plots1/Denplot.png)<!-- -->
 
+A bandwidth of 1.905 implies a moderate level of smoothing, resulting in a density plot
+that is neither overly smooth nor overly sensitive to local variations in the data.
+The density plot represents the distribution of the 'Air Quality Index' variable,
+with the y-axis showing the density of observations at different values of the index.
+With a total of 545 data points contributing to the density estimation, the plot provides
+insights into the overall distribution and concentration of air quality index values in the dataset
 
-```{r}
+Bivariate Analysis:
+
+Question : Is there a relationship between Traffic_Density and Air_Quality_Index?
+
+```
 library(ggplot2)
 
 ggplot(data, aes(x = Traffic_Density, y = Air_Quality_Index)) +
   stat_summary(fun = mean, geom = "bar", fill = "blue")
 ```
+Visualization: Scatter plot of Traffic_Density and Air_Quality_Index
 
 ![](plots1/bar.png)<!-- -->
 
+From the plot, it can be easily comprehend that the increase in air quality index is proportinal to the traffic density. When the traffic is low, the AQI is also low and when the traffic is very high, the AQI is also increased. 
+
+Question : How Cost_of_Living_Index and Happiness_Score are related with each other.
 
 ```{r}
 
@@ -201,8 +224,20 @@ ggplot(data, aes(x = Cost_of_Living_Index, y = Healthcare_Index)) +
            label = paste("Correlation coefficient:", round(correlation_coefficient, 2)), 
            hjust = 1, vjust = 1, size = 4, color = "red")
 ```
+Visualization: Corelation between Cost_of_Living_Index and Happiness_Score.
+
 ![](plots1/correlation.png)<!-- -->
 
+There is a linear relationship between Cost_of_Living_Index and Happiness_Score and
+the correlation coefficient is 0.46 indicates a moderate positive association between 
+the "Cost_of_Living_Index" and "Happiness_Score" variables, indicating that, on average,
+regions or individuals with higher cost of living tend to report higher levels of happiness. 
+
+
+Multivariate Analysis:
+
+Question : How do levels of environmental factors such as noise pollution (Decibel_Level)
+and air quality (Air_Quality_Index) relate to Healthcare_Index ?
 
 ```{r}
 
@@ -216,6 +251,7 @@ pairs(data[selected_vars])
 ```
 ![](plots1/pairplot.png)<!-- -->
 
+Visualization: Pair_plot of Decibel_Level, Air_Quality_Index & Healthcare_Index
 
 
 
