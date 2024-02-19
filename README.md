@@ -228,8 +228,10 @@ Visualization: Corelation between Cost_of_Living_Index and Happiness_Score.
 
 ![](plots1/correlation.png)<!-- -->
 
-There is a linear relationship between Cost_of_Living_Index and Happiness_Score and
-the correlation coefficient is 0.46 indicates a moderate positive association between 
+Cost of living index and happiness index show a moderate linear relation in the graph. 
+As the happiness score shows growth, the cost of living is also increasing. The relationship is only moderate
+as we see that there are few values which show high happiness score with less cost of living index also.
+The correlation coefficient is 0.46 indicates a moderate positive association between 
 the "Cost_of_Living_Index" and "Happiness_Score" variables, indicating that, on average,
 regions or individuals with higher cost of living tend to report higher levels of happiness. 
 
