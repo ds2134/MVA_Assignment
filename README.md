@@ -146,7 +146,7 @@ plot(data$Green_Space_Area, data$Air_Quality_Index,
 ![](plots/Rplot.png)<!-- -->
 
 ```
-title: 'Exploratory Data Analysis (EDA): Visualization'
+Title: 'Exploratory Data Analysis (EDA): Visualization'
 ```
 
 ```{r}
