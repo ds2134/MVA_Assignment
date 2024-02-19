@@ -146,8 +146,9 @@ plot(data$Green_Space_Area, data$Air_Quality_Index,
 ![](plots/Rplot.png)<!-- -->
 
 
+----
 Title: 'Exploratory Data Analysis (EDA): Visualization'
-
+----
 
 ```{r}
 # Provide the file path to CSV file
