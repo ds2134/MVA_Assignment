@@ -94,16 +94,9 @@ print(data)
 hist(data$Air_Quality_Index)
 ```
 
-
-
-
-
-
-
 ```{r}
 plot(density(data$Air_Quality_Index))
 ```
-
 
 ```{r}
 library(ggplot2)
@@ -111,7 +104,6 @@ library(ggplot2)
 ggplot(data, aes(x = Traffic_Density, y = Air_Quality_Index)) +
   stat_summary(fun = mean, geom = "bar", fill = "blue")
 ```
-
 
 ```{r}
 # Calculate correlation coefficient
