@@ -272,7 +272,8 @@ The graph depicts the relationship between Decibel level, air quality index and 
 linear relationship. Healthcare index is low when decibels are high clearly showing that healthcare
  is better in areas with less decibel levels.
 
-Mean and Variance Analysis:
+
+# Mean and Variance Analysis:
 ```{r}
 # Provide the file path to CSV file
 file_path <- "D:/Multivariate Analysis/Assignment-1/train US new.csv"
