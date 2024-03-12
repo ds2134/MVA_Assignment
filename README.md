@@ -602,3 +602,175 @@ Additionally, the graph's title indicates that this is an "F-Test Result:
 a legend that obtains an F-statistic of F-statistic which is 11.84 and p-value being 
 less than 2.2e-16, that is virtually zeros.
 
+
+# PCA Analysis
+
+```{r}
+
+library(MASS)
+library(factoextra)
+library(ggplot2)
+
+
+# Define the file path
+file_path <- file.path("D:", "Multivariate Analysis", "Datasets", "Body Measurements _ original_CSV.csv")
+
+# Read the CSV file
+body <- read.csv(file_path)
+```
+
+```{r}
+dim(body)
+```
+![](![](plots 4/1.png)<!-- -->
+
+```{r}
+str(body)
+```
+![](![](plots 4/2.png)<!-- -->
+
+
+```{r}
+summary(body)
+```
+![](![](plots 4/3.png)<!-- -->
+
+Summary:
+
+Gender: This variable is categorical and has two unique values, "Male" and "Female".
+The number of observations (length) is 716.
+
+Age: This variable represents the age of the individuals in the dataset. The minimum 
+age is 1, the maximum age is 68, and the mean age is approximately 15.34. The median
+age is 11, which indicates that half of the individuals are younger than 11 and half are older.
+
+Head Circumference, Shoulder Width, Chest Width, Belly, Waist, Hips, Arm Length, 
+Shoulder to Waist, Waist to Knee, Leg Length, Total Height: These variables represent
+various body measurements. For each variable, the summary includes the minimum, maximum,
+mean, median, and quartile values (1st quartile, median, and 3rd quartile). These values
+provide information about the distribution of each body measurement in the dataset.
+
+Overall, this summary provides a quick overview of the distribution of each numerical 
+variable in the dataset, which can be useful for understanding the characteristics of
+the data and identifying potential outliers.
+
+```{r}
+# Exclude categorical data from column 1 and Run PCA
+body_sample <- body[, -1]
+# Run PCA
+body_pca <- prcomp(body_sample, scale= TRUE)
+```
+
+```{r}
+#Summary of analysis
+summary(body_pca)
+```
+
+![](![](plots 4/4.png)<!-- -->
+
+summary:
+Proportion of Variance: This row represents the proportion of total variance explained 
+by each principal component. It indicates the contribution of each principal component to
+the overall variability of the data. For example, PC1 explains 44.45% of the total variance,
+PC2 explains 11.56%, and so on.
+
+Cumulative Proportion: This row represents the cumulative proportion of total variance
+explained by each principal component. It indicates the cumulative contribution of 
+principal components up to a certain point. For example, the cumulative proportion of
+variance explained by PC1 and PC2 is 56.02% (44.45% + 11.56%), and so on.
+
+
+```{r}
+#Elements of PCA object
+names(body_pca)
+```
+![](![](plots 4/5.png)<!-- -->
+
+
+```{r}
+# std deviation of components
+body_pca$sdev
+```
+
+![](![](plots 4/6.png)<!-- -->
+
+```{r}
+#Eigen vectors
+body_pca$rotation
+```
+![](![](plots 4/7.png)<!-- -->
+
+
+```{r}
+#std deviation and mean of variables
+body_pca$center
+body_pca$scale
+```
+![](![](plots 4/8.png)<!-- -->
+
+
+```{r}
+# Principal component scores
+#body_pca$x
+# Principal component scores (showing only first 5 rows)
+head(body_pca$x, 5)
+
+```
+![](![](plots 4/9.png)<!-- -->
+
+
+```{r}
+# Scree plot of Variance
+fviz_eig(body_pca, addlabels = TRUE, ylim = c(0, 50))
+```
+
+![](![](plots 4/10.png)<!-- -->
+
+
+```{r}
+# Define colors based on the first variable 
+colors <- c(rep("blue", 100), rep("red", 100))  # Adjust as per your actual data
+
+
+# Plot the first vs. second principal component
+plot(x = body_pca$x[, 1], y = body_pca$x[, 2], 
+     pch = c(rep(3, 100), rep(1, 100)), 
+     col = c(rep("blue", 100), rep("red", 100)),
+     xlab = "PC1", ylab = "PC2", main = "First vs. Second PC",
+     cex.lab = 1.2, cex.axis = 1.2, cex.main = 1.8)
+
+```
+![](![](plots 4/11.png)<!-- -->
+
+
+```{r}
+# Biplot with default settings
+fviz_pca_biplot(body_pca)
+```
+
+![](![](plots 4/12.png)<!-- -->
+
+```{r}
+# Biplot with Labeled variables
+fviz_pca_biplot(body_pca, label="var")
+```
+
+![](![](plots 4/13.png)<!-- -->
+
+
+
+```{r}
+# Biplot with colored groups
+fviz_pca_biplot(body_pca, label="var", habillage = body$Gender)
+```
+
+![](![](plots 4/14.png)<!-- -->
+
+```{r}
+# Biplot with customized Colored Groups and Variables
+fviz_pca_biplot(body_pca, label = "var", habillage = body$Gender) + 
+  scale_color_manual(values = c("Male" = "orange", "Female" = "purple"))
+```
+
+![](![](plots 4/15.png)<!-- -->
+
