@@ -623,7 +623,7 @@ body <- read.csv(file_path)
 dim(body)
 ```
 
-![](plots 4/1.png)<!-- -->
+![](body.png)<!-- -->
 
 
 ```{r}
