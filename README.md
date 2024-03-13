@@ -623,19 +623,20 @@ body <- read.csv(file_path)
 dim(body)
 ```
 
-![](body.png)<!-- -->
+![](plots4/body.png)<!-- -->
 
 
 ```{r}
 str(body)
 ```
-![](plots 4/2.png)<!-- -->
+![](plots4/strbody.png)<!-- -->
 
 
 ```{r}
 summary(body)
 ```
-![](plots 4/3.png)<!-- -->
+![](plots4/summarybody.png)<!-- -->
+
 
 Summary:
 
@@ -668,7 +669,7 @@ body_pca <- prcomp(body_sample, scale= TRUE)
 summary(body_pca)
 ```
 
-![](plots 4/4.png)<!-- -->
+![](plots4/PCA_summary.png)<!-- -->
 
 summary:
 Proportion of Variance: This row represents the proportion of total variance explained 
@@ -686,7 +687,7 @@ variance explained by PC1 and PC2 is 56.02% (44.45% + 11.56%), and so on.
 #Elements of PCA object
 names(body_pca)
 ```
-![](plots 4/5.png)<!-- -->
+![](plots4/PCA_names.png)<!-- -->
 
 
 ```{r}
@@ -694,13 +695,13 @@ names(body_pca)
 body_pca$sdev
 ```
 
-![](plots 4/6.png)<!-- -->
+![](plots4/PCA_deviation.png)<!-- -->
 
 ```{r}
 #Eigen vectors
 body_pca$rotation
 ```
-![](plots 4/7.png)<!-- -->
+![](plots4/PCA_rotation.png)<!-- -->
 
 
 ```{r}
@@ -708,7 +709,7 @@ body_pca$rotation
 body_pca$center
 body_pca$scale
 ```
-![](plots 4/8.png)<!-- -->
+![](plots4/PCA_scale.png)<!-- -->
 
 
 ```{r}
@@ -718,7 +719,7 @@ body_pca$scale
 head(body_pca$x, 5)
 
 ```
-![](plots 4/9.png)<!-- -->
+![](plots4/PCA_head.png)<!-- -->
 
 
 ```{r}
@@ -726,7 +727,7 @@ head(body_pca$x, 5)
 fviz_eig(body_pca, addlabels = TRUE, ylim = c(0, 50))
 ```
 
-![](plots 4/10.png)<!-- -->
+![](plots4/Scree_plot.png)<!-- -->
 
 
 ```{r}
@@ -742,7 +743,7 @@ plot(x = body_pca$x[, 1], y = body_pca$x[, 2],
      cex.lab = 1.2, cex.axis = 1.2, cex.main = 1.8)
 
 ```
-![](plots 4/11.png)<!-- -->
+![](plots4/PC1_PC2.png)<!-- -->
 
 
 ```{r}
@@ -750,14 +751,14 @@ plot(x = body_pca$x[, 1], y = body_pca$x[, 2],
 fviz_pca_biplot(body_pca)
 ```
 
-![](plots 4/12.png)<!-- -->
+![](plots4/PCA_biplot.png)<!-- -->
 
 ```{r}
 # Biplot with Labeled variables
 fviz_pca_biplot(body_pca, label="var")
 ```
 
-![](plots 4/13.png)<!-- -->
+![](plots4/Labeled_biplot.png)<!-- -->
 
 
 
@@ -766,7 +767,7 @@ fviz_pca_biplot(body_pca, label="var")
 fviz_pca_biplot(body_pca, label="var", habillage = body$Gender)
 ```
 
-![](plots 4/14.png)<!-- -->
+![](plots4/Biplot_groups.png)<!-- -->
 
 ```{r}
 # Biplot with customized Colored Groups and Variables
@@ -774,5 +775,5 @@ fviz_pca_biplot(body_pca, label = "var", habillage = body$Gender) +
   scale_color_manual(values = c("Male" = "orange", "Female" = "purple"))
 ```
 
-![](plots 4/15.png)<!-- -->
+![](plots4/Customized_biplot.png)<!-- -->
 
