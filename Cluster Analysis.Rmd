@@ -1,0 +1,233 @@
+---
+title: "Cluster Analysis"
+author: "Deviprasad Saka"
+date: "2024-03-07"
+output: html_document
+---
+
+```{r}
+library(MASS)
+library(factoextra)
+library(ggplot2)
+library(readxl)
+library(factoextra)
+library(ggfortify)
+library(ggrepel)
+library(stats)
+
+# Define the file path
+file_path <- "D:/Multivariate Analysis/Datasets/Body Measurements _ original_CSV.csv"
+# Read the CSV file
+body <- read.csv(file_path)
+# Standardized the data set excluding the first variable which is categorical
+data.scaled <- scale(x = body[, -1], center = TRUE, scale = TRUE)
+data <- data.scaled
+head(data)
+```
+
+
+
+Q: What is the proportion of variance explained by the first three principal components in the PCA analysis, and how does it impact the effectiveness of the subsequent K-means clustering algorithm in identifying distinct clusters within the data?
+
+```{r}
+# Perform PCA
+pc <- prcomp(data.scaled)
+
+# Extract the first three principal components
+pc_first_three <- pc$x[, 1:3]
+
+# Perform K-means clustering on the first three principal components
+set.seed(123)  # For reproducibility
+k <- 3  # Number of clusters
+km_clusters <- kmeans(pc_first_three, centers = k)
+
+# Plot the first three principal components with cluster assignments
+plot(pc_first_three, col = km_clusters$cluster, 
+     main = "First Three Principal Components with Cluster Assignments", 
+     xlab = "", ylab = "", pch = 20)
+```
+
+This above code first performs Principal Component Analysis (PCA) on scaled data, reducing its dimensionality. Then, it extracts the first three principal components. Next, it applies K-means clustering to these components, dividing data into three clusters. Finally, it plots the first three principal components with color-coded cluster assignments for visualization and analysis.
+
+
+
+
+
+
+
+
+Q: Can hierarchical clustering based on the first three principal components effectively reveal underlying patterns or groupings within the dataset, and how do the relationships between samples, as depicted in the dendrogram, reflect the distances in the reduced-dimensional space?
+```{r}
+
+# Perform PCA
+pc <- prcomp(data.scaled)
+
+# Extract the first three principal components
+pc_first_three <- pc$x[, 1:3]
+
+# Take a subset of 20 rows
+data_subset <- data[1:20, ]
+
+# Perform PCA
+pca_result <- prcomp(data_subset)
+
+# Extract the first three principal components
+pc_first_three <- pca_result$x[, 1:3]
+
+# Perform hierarchical clustering on the first three principal components
+hc <- hclust(dist(pc_first_three))
+
+# Plot the dendrogram
+plot(hc, main = "Dendrogram of Hierarchical Clustering (Subset of 20 Rows)",
+     xlab = "Sample Index", ylab = "Distance", sub = NULL)
+```
+
+The plot shows the first three principal components, performs hierarchical clustering on them, and plots a dendrogram showing the relationships between the samples based on their distances in the reduced-dimensional space.
+
+
+
+
+```{r}
+library(magrittr)
+library(NbClust)
+
+
+# Define the file path
+file_path <- "D:/Multivariate Analysis/Datasets/Body Measurements _ original_CSV.csv"
+
+# Read the CSV file
+body <- read.csv(file_path)
+
+# Take a subset of 20 rows
+body_subset <- body[1:20, c("ChestWidth", "ShoulderWidth", "Belly")]
+
+# Calculate distance matrix
+dist_matrix <- dist(body_subset)
+
+# Hierarchical clustering
+hclust_model <- hclust(dist_matrix)
+
+# Plot the dendrogram
+plot(hclust_model)
+```
+This dendrogram performs hierarchical clustering on body measurements data. It first reads a CSV file containing measurements, selects a subset of 20 rows with specific measurements, calculates the distance matrix between these measurements, conducts hierarchical clustering, and finally plots a dendrogram to visualize the clusters formed based on similarity between measurements.
+
+
+
+
+```{r}
+num_clusters <- 3
+clusters <- cutree(hclust_model, k = num_clusters)
+
+# Membership for each cluster
+table(km_clusters$cluster)
+```
+It uses hierarchical clustering to group data into three clusters. It extracts the membership of each data point in the clusters and displays the count of data points in each cluster using a table.
+
+
+
+
+
+
+
+Q: What is the degree of separation or distinctiveness among the identified clusters when analyzing the distribution of data points in the two-dimensional space formed by the first two Principal Components?
+```{r}
+# Visualize cluster and membership using first two Principal Components
+fviz_cluster(list(data = pc$x[, 1:2], cluster = km_clusters$cluster))
+```
+
+This plot visualizes clustering results by plotting data points in a two-dimensional space using the first two Principal Components. Each point is colored according to its assigned cluster, showing the grouping pattern identified by the clustering algorithm. It helps understand how data points are grouped based on their features.
+
+
+
+
+```{r}
+# Non-hierarchical clustering (k-means)
+num_clusters <- 2  
+kmeans_model <- kmeans(data, centers = num_clusters)
+
+# Membership for each cluster
+table(kmeans_model$cluster)
+```
+
+This represents clustering using the k-means algorithm, dividing data into two clusters. It initializes cluster centers randomly, assigning each data point to the nearest cluster. The table function counts the number of data points assigned to each cluster, providing insight into cluster membership and distribution.
+
+
+
+
+
+Q: What is the distribution of cluster sizes obtained through k-means clustering when applied to the dataset using the first two principal components, and how does it compare to the distribution of cluster sizes obtained from clustering in the original feature space?
+```{r}
+# Visualize cluster and membership using first two Principal Components
+fviz_cluster(list(data = pc$x[, 1:2], cluster = kmeans_model$cluster))
+```
+
+This plot visualizes clusters and their memberships using the first two principal components. It extracts these components from the data, then assigns each data point to a cluster using k-means clustering. Finally, it creates a visual representation showing how the data points are grouped based on their similarities in the first two principal components.
+
+
+
+
+
+Q: What is the relationship between the clustering results obtained through k-means algorithm and the underlying structure of the data as revealed by Principal Component Analysis (PCA)?
+```{r}
+# Visualize cluster and membership using first two Principal Components for k-means
+pca_result <- prcomp(data, scale = TRUE)
+fviz_cluster(kmeans_model, data = pca_result$x[, 1:2], geom = "point", 
+             pointsize = 2, fill = "white", main = "K-means Clustering Result (PCA)")
+```
+ 
+ This shows visualization of the clusters and their memberships using the first two Principal Components (PCs) obtained from the PCA (Principal Component Analysis) of the numerical data. First, it computes the PCA result for the numerical data and scales it. Then, it uses the `fviz_cluster` function to plot the clusters obtained from the k-means algorithm (`kmeans_model`). It represents each data point as a point on the plot, with the size set to 2 and colored white. The plot is titled "K-means Clustering Result (PCA)". This visualization helps to understand how the data points are grouped into clusters based on their similarities, as revealed by the PCA analysis.
+
+
+
+
+
+
+Q:What is the relationship between the number of clusters (k) and the average silhouette width in k-means clustering, and how does this relationship inform the determination of the optimal number of clusters for a given dataset?
+```{r}
+library(factoextra)
+library(cluster)
+
+# Calculate silhouette information for k-means clustering
+sil <- silhouette(kmeans_model$cluster, dist(data))
+
+# Visualize the silhouette plot for k-means clustering
+fviz_silhouette(sil, main = "Silhouette Plot for K-means Clustering")
+
+```
+
+This plot calculates and visualizes the silhouette information for k-means clustering. Silhouette analysis helps evaluate the quality of clustering by measuring how similar an object is to its own cluster compared to other clusters. A higher silhouette width indicates better separation of clusters, while negative values suggest that points might be assigned to the wrong clusters. This plot helps in determining the optimal number of clusters for k-means clustering and assessing the overall clustering performance.
+
+
+
+
+
+
+Q: Is there a significant difference in the clustering patterns based on ChestWidth and ShoulderWidth among different groups represented by distinct colors on the plot?
+```{r}
+# Create a data frame with cluster membership
+data_clustered <- data.frame(data, Cluster = kmeans_model$cluster)  # Ensure conversion to data frame
+
+# Scatter plot of data points colored by cluster membership
+plot(data_clustered$ChestWidth, data_clustered$ShoulderWidth, 
+     col = data_clustered$Cluster, pch = 16, 
+     xlab = "ChestWidth", ylab = "ShoulderWidth",  
+     main = "Scatter Plot of Clustering")
+legend("topright", legend = unique(data_clustered$Cluster), 
+       col = 1:max(data_clustered$Cluster), pch = 16, title = "Cluster")
+
+```
+
+Overall, this plot visualizes clusters in the data, helping us understand
+how data points group together based on their ChestWidth and ShoulderWidth, with each group 
+represented by a different color on the plot.
+
+
+
+
+
+```{r}
+res.nbclust <- data %>% scale() %>% NbClust(distance = "euclidean", min.nc = 2, max.nc = 10, method = "complete", index ="all")
+```
+
+This analysis uses the NbClust function. It scales the data, then determines the optimal number of clusters (min.nc to max.nc) based on various indices. It uses Euclidean distance and complete linkage method to measure dissimilarities between observations in multivariate data for clustering.
