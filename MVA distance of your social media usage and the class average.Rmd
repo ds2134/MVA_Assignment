@@ -1,0 +1,31 @@
+
+```{r}
+
+# Load required libraries
+library(psych)  # For mahalanobis function
+library(readxl) # For reading Excel files
+
+# Read the data from Excel file
+mva <- read_excel("C:/Users/sakad/Downloads/social_media_cleaned.xlsx")
+
+# Remove the first column (assuming it contains row names)
+mva <- mva[-1]
+
+# Scale the data
+scaled_data <- scale(mva)
+
+# Calculate the correlation matrix
+classcov <- cor(mva)
+
+# Calculate the mean of each column
+classmean <- colMeans(mva)
+
+# Compute Mahalanobis distances for each observation
+mvascale <- mahalanobis(mva, classmean, classcov)
+
+# Print the Mahalanobis distance for the 19th observation
+print(mvascale[19])
+
+
+
+```
