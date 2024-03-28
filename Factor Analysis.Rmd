@@ -1,0 +1,240 @@
+---
+title: "Factor Analysis"
+author: "Deviprasad Saka"
+date: "2024-03-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+
+```{r}
+
+
+# Factor Analysis
+
+library(psych)
+
+ship <- read.csv("D:/Multivariate Analysis/Assignment-6/Ship_data.csv")
+
+```
+
+```{r}
+summary(ship)
+```
+Q:  Decide how many Factors are ideal for your dataset?
+Ans: In my dataset, I selected four factors because I believe these factors adequately capture the underlying structure and variation present in the data. By choosing four factors, I aim to simplify the analysis while still retaining enough information to effectively understand the patterns and relationships within the dataset. These factors are chosen based on their ability to explain the most significant sources of variability in the data, making it easier to interpret and draw insights from the analysis.
+```{r}
+fit.pc <- principal(ship, nfactors=4, rotate="varimax")
+fit.pc
+```
+The provided outputrepresent the results of a factor analysis or a similar statistical analysis technique. Here's a breakdown of the information:
+
+RC1, RC2, RC3, RC4: These are the names of the factors extracted from the data. Each factor represents a linear combination of the original variables in the dataset.
+
+h2, u2, com: These are statistical metrics associated with the factors:
+h2*: Represents the communality of each variable, indicating the proportion of variance in the variable explained by the factors.
+u2: Represents the uniqueness of each variable, indicating the proportion of variance in the variable not explained by the factors.
+com: Represents the communalities of the factors, indicating the proportion of variance in the data explained by the factors.
+
+- The subsequent rows represent the loadings of each variable on the factors. Loadings indicate the strength and direction of the relationship between variables and factors. For example:
+
+Hs*: This variable has loadings of 0.99, 0.01, 0.02, and 0.01 on factors RC1, RC2, RC3, and RC4 respectively.
+  P, Tp, V, dist, hours, n, t, tot_r, w: These variables similarly have loadings on each of the factors.
+
+These results provide insights into how each variable contributes to the extracted factors and help in understanding the underlying structure of the data.
+
+
+Q: How do eigenvalues and loadings show relationships between variables in factor analysis or PCA?
+```{r}
+round(fit.pc$values, 3)
+fit.pc$loadings
+```
+
+Ans: The above  results explains the eigenvalues of the principal components to three decimal places and displays the loadings matrix, showing the correlation between the original variables and the principal components in a factor analysis or principal component analysis (PCA).
+
+
+Eigenvalues: The first line shows the rounded eigenvalues of the principal components. These values indicate the amount of variance explained by each principal component. The first four eigenvalues are 4.391, 2.352, 1.185, and 1.122, suggesting that the first four components explain the most variance in the data.
+
+Loadings: The loadings matrix displays the correlation between the original variables and the principal components (RC1, RC2, RC3, RC4). Each cell in the matrix represents the correlation coefficient between a variable and a principal component. For example, the loading for variable "Hs" on RC1 is 0.989, indicating a strong positive correlation. Conversely, the loading for variable "V" on RC2 is -0.125, suggesting a moderate negative correlation.
+
+SS loadings, Proportion Var, Cumulative Var: These metrics summarize the variance explained by each principal component. "SS loadings" shows the sum of squares of the loadings for each component, while "Proportion Var" indicates the proportion of variance explained by each component relative to the total variance. "Cumulative Var" represents the cumulative proportion of variance explained as more components are added.
+
+
+Q: What specific loadings are extracted for the first principal component, and what do communalities represent?
+```{r}
+# Loadings with more digits
+for (i in c(1,3,2,4)) { print(fit.pc$loadings[[1,i]])}
+# Communalities
+fit.pc$communality
+```
+Ans: The provided output represents the specific loadings for the first principal component, explaining the correlation between each variable (Hs, P, Tp, V, dist, hours, n, t, tot_r, w, and wave_dir) and the component. These loadings are expressed with greater precision to offer more detailed insights into their relationships. Additionally, communalities are shown for each variable, representing the proportion of variance explained collectively by all factors in the factor analysis or PCA. For instance, the communality of variable Hs is 0.9786966, indicating that approximately 97.87% of its variance is accounted for by the identified factors. Similarly, other variables exhibit their respective communalities, elucidating the extent to which they contribute to the overall variance explained by the factors.
+
+
+
+```{r}
+
+# Display the first 10 rows of the rotated factor scores with column ordering: RC1, RC3, RC2, and RC4
+head(fit.pc$scores, 10)
+
+```
+
+
+```{r}
+fa.parallel(ship) # See factor recommendation
+```
+The scree plot helps to visualize the "elbow" or the point after which the addition of another component or factor does not significantly increase the explained variance. This is often used as a criterion for selecting the number of components or factors to retain in the analysis.
+
+The scree plot in this image is enhanced by comparing actual data eigenvalues against those obtained through simulation and resampling techniques. This comparison is used to support the decision of how many components or factors to retain:
+
+Actual Data: These lines represent the eigenvalues derived from the actual dataset being analyzed.
+
+Simulated Data: These lines show eigenvalues from datasets that have been generated under some null hypothesis, usually assuming that the data have no underlying factor structure.
+
+Resampled Data: This refers to eigenvalues obtained from a method like bootstrapping or permutation, where the original data is resampled with replacement to create new samples, and the analysis is repeated to assess the stability of the eigenvalues.
+
+The x-axis of the plot represents the factor or component number, while the y-axis represents the magnitude of the eigenvalues. Typically, the point where the line starts to flatten out (the elbow) suggests the number of factors or components that should be retained. This is where the actual data eigenvalues fall below the eigenvalues of the simulated or resampled data, indicating that additional factors or components are likely not meaningful and are simply explaining noise.
+
+
+
+
+```{r}
+fa.plot(fit.pc) # See Correlations within Factors
+```
+Q:  Explain the output for your factor model and Show the columns that go into each factor?
+```{r}
+fa.diagram(fit.pc) # Visualize the relationship
+```
+The component loadings shown in the diagram represent the strength and direction of the relationship between the original variables and the principal components (RC1, RC2, RC3, and RC4). Here's an interpretation of the diagram:
+
+1.Strong Positive Loadings (Solid Lines): When a variable is connected to a component with a solid line and no number, it suggests a strong positive loading, possibly close to 1. This means that the variable strongly contributes to the composition of that component. For example, "tot_r," "P," "n," and "Hs" show strong positive loadings on RC1.
+
+2. Moderate Positive Loadings (Dashed Lines with Numbers): A dashed line with a number less than 1, like the 0.7 for "dist" to RC2 or the 0.8 for "V" to RC4, indicates a moderate positive loading. The variable contributes to the component, but not as strongly as those with solid lines.
+
+3. Direction of Influence: All the depicted loadings are positive, meaning the variables move in the same direction as the components. If a variable had a negative loading, it would indicate an inverse relationship with the component.
+
+4. Relative Importance Across Components: Some variables contribute to multiple components, while others are primarily associated with one. For example, "dist" contributes moderately to RC2, while "wave_dir" seems to contribute strongly to RC1 and moderately to RC3 and RC4.
+
+The values next to the lines (0.7, 0.8) help in determining the relative influence of each variable on the components. The higher the value, the more significant the contribution of the variable to the corresponding component. The diagram doesn't show all numerical values, so some interpretation is based on the assumption that solid lines represent a default high value, which is a common convention in such charts.
+
+In summary, the component loadings help in understanding which variables are most influential in defining each principal component and can provide insight into the underlying structure of the data. This information is valuable for reducing dimensionality while retaining the essence of the original data, which can be useful in subsequent analysis, visualization, or modeling.
+
+i) By combining the variables Significant wave height, engine power, propeller RPM, and total resistance faced by the ship, we can potentially derive a single factor related to the ship's Relative rotative efficiency.
+
+ii)By combining the variables peak wave period, distance traveled along the route, and wave direction faced by the ship, we may extract a single factor related to the ship's navigational conditions or its response to wave dynamics. This factor could potentially represent the ship's open water efficiency.
+
+iii) Combining the variables Time spent from current point on the route to the next one and Thrust deduction fraction of ship could potentially yield a factor related to Hull efficiency.
+
+iv)Combining ship speed and wake fraction variables could potentially yield a factor related to the ship Quasi propulsive efficiency.
+
+
+
+
+```{r}
+vss(ship) # See Factor recommendations for a simple structure
+```
+
+
+```{r}
+# Computing Correlation Matrix
+corrm.emp <- cor(ship)
+corrm.emp
+```
+
+```{r}
+plot(corrm.emp)
+```
+
+```{r}
+ship_pca <- prcomp(ship, scale=TRUE)
+summary(ship_pca)
+```
+
+```{r}
+plot(ship_pca)
+```
+
+
+```{r}
+# A table containing eigenvalues and %'s accounted, follows. Eigenvalues are the sdev^2
+(eigen_ship <- round(ship_pca$sdev^2,3))
+round(fit.pc$values, 3)
+names(eigen_ship) <- paste("PC",1:9,sep="")
+eigen_ship
+```
+
+```{r}
+sumlambdas <- sum(eigen_ship)
+sumlambdas
+```
+
+```{r}
+propvar <- round(eigen_ship/sumlambdas,2)
+propvar
+```
+
+```{r}
+cumvar_ship <- cumsum(propvar)
+cumvar_ship
+```
+
+```{r}
+matlambdas <- rbind(eigen_ship,propvar,cumvar_ship)
+matlambdas
+```
+
+```{r}
+rownames(matlambdas) <- c("Eigenvalues","Prop. variance","Cum. prop. variance")
+rownames(matlambdas)
+```
+
+```{r}
+eigvec.emp <- ship_pca$rotation
+print(ship_pca)
+```
+
+```{r}
+# Taking the first four PCs to generate linear combinations for all the variables with four factors
+pcafactors.emp <- eigvec.emp[,1:4]
+pcafactors.emp
+```
+
+```{r}
+# Multiplying each column of the eigenvector’s matrix by the square-root of the corresponding eigenvalue in order to get the factor loadings
+unrot.fact.emp <- sweep(pcafactors.emp,MARGIN=2,ship_pca$sdev[1:4],`*`)
+unrot.fact.emp
+```
+
+```{r}
+# Computing communalities
+communalities.emp <- rowSums(unrot.fact.emp^2)
+communalities.emp
+```
+
+```{r}
+# Performing the varimax rotation. The default in the varimax function is norm=TRUE thus, Kaiser normalization is carried out
+rot.fact.emp <- varimax(unrot.fact.emp)
+#View(unrot.fact.emp)
+rot.fact.emp
+```
+
+
+```{r}
+# The print method of varimax omits loadings less than abs(0.1). In order to display all the loadings, it is necessary to ask explicitly the contents of the object $loadings
+fact.load.emp <- rot.fact.emp$loadings[1:9,1:4]
+fact.load.emp
+```
+
+```{r}
+# Computing the rotated factor scores, Notice that signs are reversed for factors F2 (PC2), F3 (PC3) and F4 (PC4)
+scale.emp <- scale(ship)
+scale.emp
+
+```
+
+
+
+
+
