@@ -1,0 +1,413 @@
+---
+title: "Socialmedia"
+author: "Deviprasad Saka"
+date: "2024-03-28"
+output: html_document
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+```{r}
+sm <- read.csv("C:/Users/sakad/Downloads/social_media_cleaned.csv")
+str(sm)
+
+```
+
+
+```{r}
+sm1 <- sm[, 2:9]
+sm1
+```
+
+PCA
+Q: How do relation  between social media platforms inform our understanding of user behavior and interactions?
+
+```{r}
+#Get the correlations between the variables 
+cor(sm1, use = "complete.obs")
+```
+
+The result is a correlation matrix showing the relationships between different social media platforms based on their usage patterns or user engagement. Each cell in the matrix represents the correlation coefficient between pairs of platforms, ranging from -1 to 1. A value of 1 indicates a perfect positive correlation (when one platform's usage increases, the other's also tends to increase), while -1 indicates a perfect negative correlation (when one platform's usage increases, the other's tends to decrease). 
+
+For instance, the correlation between Instagram and LinkedIn is 0.097, suggesting a weak positive correlation, implying that users who engage more with Instagram may also have a slight tendency to engage more with LinkedIn. Conversely, the correlation between Twitter and Whatsapp/Wechat is -0.496, indicating a moderate negative correlation, implying that users who are highly active on Twitter may be less active on Whatsapp/Wechat, and vice versa.
+
+The diagonal elements (where the platform is compared to itself) always have a correlation coefficient of 1 since a platform perfectly correlates with itself. This matrix helps understand how different social media platforms are related to each other in terms of user engagement or usage patterns, which can be valuable for marketers, researchers, and social media strategists in understanding user behavior and optimizing their strategies across multiple platforms.
+
+
+
+
+Q: What are the implications of the rotated factor loadings on social media platforms in understanding their associations and contributions to different dimensions captured by principal components in factor analysis or principal component analysis?
+
+
+```{r}
+#Computing Principal Components
+social_pca <- prcomp(sm1,scale=TRUE)
+social_pca
+
+```
+
+The provided result represents the rotated factor loadings from a factor analysis or principal component analysis (PCA) of various social media platforms. In such analyses, multiple variables (in this case, social media platforms) are examined to identify underlying factors or components that explain the shared variance among them. The table shows the loadings of each social media platform on the identified principal components (PCs), denoted as PC1 through PC8. Each row corresponds to a social media platform, and each column represents a principal component. 
+
+For Example:
+- Instagram has high positive loadings on PC1, PC2, and PC3, indicating a strong association with these components.
+- LinkedIn loads highly on PC1 and PC5 but negatively on PC2 and PC7, suggesting a more complex relationship with these components.
+- Snapchat shows a substantial loading on PC3 but negligible loadings on other components, implying its strong association with PC3 only.
+
+These loadings represent the correlation between each social media platform and the identified components. Higher absolute values (close to 1) suggest a stronger relationship, while values closer to 0 indicate a weaker association. The rotated factor loadings help in interpreting the underlying structure of the data, revealing which social media platforms are closely related and how they contribute to different dimensions captured by the principal components.
+
+
+```{r}
+summary(social_pca)
+```
+
+```{r}
+eigen_social<- social_pca$sdev^2
+eigen_social
+```
+
+The PCA analysis reveals that PC1 and PC2 together contribute approximately 50% of the total variance.
+
+
+
+Q: What the variance explained by each component, and how does it suggest the number of components to retain for analysis?
+
+Screeplot
+
+```{r}
+plot(eigen_social, xlab = "Component number", ylab = "Component variance", type = "l", main = "Scree diagram")
+```
+
+From this Scree diagram, we can see that the first component has a variance just above 2.0, and the variance decreases with each additional component. The curve starts to flatten out after the third component, suggesting that retaining the first two or three components might be appropriate for this particular analysis. Components beyond this point are often considered to contribute less to explaining the variance and may be less meaningful.
+
+```{r}
+plot(log(eigen_social), xlab = "Component number", ylab = "Component variance", type = "l", main = "Scree diagram")
+```
+
+Based on the scree plot, it's advantageous to include PC1 through PC5, as they collectively explain 84% of the total variance.
+
+Visualization using Principal Components
+
+```{r}
+library(FactoMineR)
+library("factoextra")
+res.pca <- PCA(sm1, graph = FALSE)
+fviz_pca_var(res.pca, col.var = "black")
+```
+
+
+Factor Analysis
+```{r}
+# load library for factor analysis
+library(ggplot2)
+library(psych)
+
+```
+
+
+Q: Determine the optimal number of factors for your dataset?
+```{r}
+fa.parallel(sm1)
+```
+
+Parallel analysis indicates that both the number of factors and the number of components are zero.
+
+
+Q: Provide an explanation for the output of your factor model?
+```{r}
+fit.pc <- principal(sm1, nfactors=2, rotate="varimax")
+fit.pc
+```
+
+- Large absolute values (near 1) signify a robust association between the variable and the factor.
+- h2 quantifies the extent to which factors account for variable variance.
+- u2 denotes the portion of variance not captured by the factors.
+
+Principal Components Analysis
+Call: principal(r = sm1, nfactors = 2, rotate = "varimax")
+Standardized loadings (pattern matrix) based upon correlation matrix
+
+                       RC1  RC2
+SS loadings           2.27 1.80
+Proportion Var        0.25 0.20
+Cumulative Var        0.25 0.45
+Proportion Explained  0.56 0.44
+Cumulative Proportion 0.56 1.00
+
+Mean item complexity =  1.3
+Test of the hypothesis that 2 components are sufficient.
+
+The root mean square of the residuals (RMSR) is  0.14 
+ with the empirical chi square  29.01  with prob <  0.066 
+ 
+
+```{r}
+round(fit.pc$values, 3)
+```
+
+
+```{r}
+fit.pc$loadings
+```
+```{r}
+# Communalities
+fit.pc$communality
+
+```
+```{r}
+# Rotated factor scores, Notice the columns ordering: RC1, RC2
+fit.pc
+fit.pc$scores
+
+```
+```{r}
+fa.plot(fit.pc) # See Correlations within Factors
+
+```
+
+
+Q: Show the columns that go into each factor?
+```{r}
+fa.diagram(fit.pc) # Visualize the relationship
+
+```
+
+This displays a diagram titled "Components Analysis," which seems to represent a factor analysis or a similar statistical method that groups different social media platforms into components based on their relationships. The platforms listed are WhatsApp/WeChat, YouTube, Instagram, LinkedIn, SnapChat, Twitter, OTT, and Reddit.
+
+Two components are identified in the diagram: RC1 and RC2. RC1 is linked with four platforms: YouTube, Instagram, LinkedIn, and WhatsApp/WeChat, with respective loadings of 0.7, 0.7, 0.7, and 0.6. RC2 is associated with Twitter, OTT, and Reddit, with loadings of 0.8, 0.8, and 0.5 respectively. The loadings represent how strongly each platform is related to the respective component, with higher values indicating a stronger relationship.
+
+
+Creating visual representations utilizing the factors.
+
+```{r}
+#very simple structure visualization
+vss(sm1)
+
+```
+
+The analysis suggests that a simpler structure with one factor is sufficient, as indicated by a maximum of 0.61 for VSS complexity 1 and a minimum of 0.06 for Velicer MAP. However, considering other criteria such as BIC and sample size-adjusted BIC, a model with five factors appears to be the most appropriate, with BIC reaching a minimum of -53.17 and sample size-adjusted BIC at 1.47.
+
+
+```{r}
+# Computing Correlation Matrix
+corrm.social <- cor(sm1)
+corrm.social
+
+```
+
+```{r}
+plot(corrm.social)
+
+```
+
+Q: What is the significance of each principal component in explaining the variance and capturing the underlying structure of the data in the factor analysis?
+
+```{r}
+social_pca <- prcomp(sm1, scale=TRUE)
+summary(social_pca)
+
+```
+
+The results represents the importance of each principal component (PC) in the factor analysis. The standard deviation indicates the variability captured by each PC, with PC1 having the highest at 1.4937 and subsequent PCs decreasing in magnitude. The proportion of variance signifies the percentage of total variance explained by each PC, with PC1 contributing the most at 27.89% and subsequent PCs decreasing in importance. The cumulative proportion shows the accumulated contribution of each PC to the total variance, with PC1 accounting for 27.89% and subsequent PCs incrementally adding to reach 100%. This information helps understand the significance of each PC in capturing the underlying structure of the data, with PC1 being the most influential, followed by subsequent PCs in descending order of importance.
+
+```{r}
+plot(social_pca)
+
+```
+
+Q: What are the main insights obtained from the relationship between social media platforms and individual observations in the factor analysis?
+Biplot
+
+```{r}
+biplot(fit.pc)
+
+```
+
+The biplot visualizes the results of a factor analysis, showing the relationship between various social media platforms and services (represented by red arrows) and the scores of individual observations (represented by black dots) across two principal components, RC1 and RC2. The social media platforms—Twitter, OTT content, Reddit, LinkedIn, YouTube, Instagram, Snapchat, and Whatsapp/Wechat—are plotted as vectors, with their direction and length indicating their contribution and correlation to the components. Platforms with similar orientations have similar factor profiles, suggesting comparable characteristics or usage patterns. The position of the data points indicates how each observation scores on the components, with clustering points suggesting groups with similar factor scores. The biplot is a useful tool for interpreting the underlying structure of the data, revealing the dominant patterns of variation and the relationships between the variables and observations.
+
+
+Cluster Analysis
+
+```{r}
+library(MASS)
+library(factoextra)
+library(ggplot2)
+library(readxl)
+library(factoextra)
+library(ggfortify)
+library(ggrepel)
+library(stats)
+
+# Load required library
+library(readxl)
+
+# Define the file path
+file_path <- "C:/Users/sakad/Downloads/social_media_cleaned.xlsx"
+
+# Read the Excel file
+body <- read_excel(file_path)
+
+# Standardize the dataset excluding the first variable which is categorical
+data.scaled <- scale(x = body[, -1], center = TRUE, scale = TRUE)
+
+# Assign the standardized data to 'data'
+data <- data.scaled
+
+# Display the first few rows of 'data'
+head(data)
+
+```
+
+Q: What is the proportion of variance explained by the first three principal components in the PCA analysis, and how does it impact the effectiveness of the subsequent K-means clustering algorithm in identifying distinct clusters within the data?
+
+```{r}
+# Perform PCA
+pc <- prcomp(data.scaled)
+
+# Extract the first three principal components
+pc_first_three <- pc$x[, 1:3]
+
+# Perform K-means clustering on the first three principal components
+set.seed(123)  # For reproducibility
+k <- 3  # Number of clusters
+km_clusters <- kmeans(pc_first_three, centers = k)
+
+# Define colors for each cluster
+cluster_colors <- c("red", "blue", "green")
+
+# Plot the first three principal components with cluster assignments
+plot(pc_first_three, col = cluster_colors[km_clusters$cluster], 
+     main = "First Three Principal Components with Cluster Assignments", 
+     xlab = "", ylab = "", pch = 20)
+
+```
+
+
+This above code first performs Principal Component Analysis (PCA) on scaled data, reducing its dimensionality. Then, it extracts the first three principal components. Next, it applies K-means clustering to these components, dividing data into three clusters. Finally, it plots the first three principal components with color-coded cluster assignments for visualization and analysis.
+
+
+Q: Can hierarchical clustering based on the first three principal components effectively reveal underlying patterns or groupings within the dataset, and how do the relationships between samples, as depicted in the dendrogram, reflect the distances in the reduced-dimensional space?
+```{r}
+
+# Perform PCA
+pc <- prcomp(data.scaled)
+
+# Extract the first three principal components
+pc_first_three <- pc$x[, 1:3]
+
+# Take a subset of 20 rows
+data_subset <- data[1:20, ]
+
+# Perform PCA
+pca_result <- prcomp(data_subset)
+
+# Extract the first three principal components
+pc_first_three <- pca_result$x[, 1:3]
+
+# Perform hierarchical clustering on the first three principal components
+hc <- hclust(dist(pc_first_three))
+
+# Plot the dendrogram
+plot(hc, main = "Dendrogram of Hierarchical Clustering (Subset of 20 Rows)",
+     xlab = "Sample Index", ylab = "Distance", sub = NULL)
+```
+
+The plot shows the first three principal components, performs hierarchical clustering on them, and plots a dendrogram showing the relationships between the samples based on their distances in the reduced-dimensional space.
+
+
+Q: What is the degree of separation or distinctiveness among the identified clusters when analyzing the distribution of data points in the two-dimensional space formed by the first two Principal Components?
+```{r}
+# Visualize cluster and membership using first two Principal Components
+fviz_cluster(list(data = pc$x[, 1:2], cluster = km_clusters$cluster))
+```
+
+This plot visualizes clustering results by plotting data points in a two-dimensional space using the first two Principal Components. Each point is colored according to its assigned cluster, showing the grouping pattern identified by the clustering algorithm. It helps understand how data points are grouped based on their features.
+
+
+```{r}
+# Non-hierarchical clustering (k-means)
+num_clusters <- 2  
+kmeans_model <- kmeans(data, centers = num_clusters)
+
+# Membership for each cluster
+table(kmeans_model$cluster)
+```
+
+This represents clustering using the k-means algorithm, dividing data into two clusters. It initializes cluster centers randomly, assigning each data point to the nearest cluster. The table function counts the number of data points assigned to each cluster, providing insight into cluster membership and distribution.
+
+
+
+
+
+Q: What is the distribution of cluster sizes obtained through k-means clustering when applied to the dataset using the first two principal components, and how does it compare to the distribution of cluster sizes obtained from clustering in the original feature space?
+```{r}
+# Visualize cluster and membership using first two Principal Components
+fviz_cluster(list(data = pc$x[, 1:2], cluster = kmeans_model$cluster))
+```
+
+This plot visualizes clusters and their memberships using the first two principal components. It extracts these components from the data, then assigns each data point to a cluster using k-means clustering. Finally, it creates a visual representation showing how the data points are grouped based on their similarities in the first two principal components.
+
+
+Q: What is the relationship between the clustering results obtained through k-means algorithm and the underlying structure of the data as revealed by Principal Component Analysis (PCA)?
+```{r}
+# Visualize cluster and membership using first two Principal Components for k-means
+pca_result <- prcomp(data, scale = TRUE)
+fviz_cluster(kmeans_model, data = pca_result$x[, 1:2], geom = "point", 
+             pointsize = 2, fill = "white", main = "K-means Clustering Result (PCA)")
+```
+ 
+ This shows visualization of the clusters and their memberships using the first two Principal Components (PCs) obtained from the PCA (Principal Component Analysis) of the numerical data. First, it computes the PCA result for the numerical data and scales it. Then, it uses the `fviz_cluster` function to plot the clusters obtained from the k-means algorithm (`kmeans_model`). It represents each data point as a point on the plot, with the size set to 2 and colored white. The plot is titled "K-means Clustering Result (PCA)". This visualization helps to understand how the data points are grouped into clusters based on their similarities, as revealed by the PCA analysis.
+
+
+Q:What is the relationship between the number of clusters (k) and the average silhouette width in k-means clustering, and how does this relationship inform the determination of the optimal number of clusters for a given dataset?
+```{r}
+library(factoextra)
+library(cluster)
+
+# Calculate silhouette information for k-means clustering
+sil <- silhouette(kmeans_model$cluster, dist(data))
+
+# Visualize the silhouette plot for k-means clustering
+fviz_silhouette(sil, main = "Silhouette Plot for K-means Clustering")
+
+```
+
+This plot calculates and visualizes the silhouette information for k-means clustering. Silhouette analysis helps evaluate the quality of clustering by measuring how similar an object is to its own cluster compared to other clusters. A higher silhouette width indicates better separation of clusters, while negative values suggest that points might be assigned to the wrong clusters. This plot helps in determining the optimal number of clusters for k-means clustering and assessing the overall clustering performance.
+
+
+
+
+
+
+Q: Is there a significant difference in the clustering patterns based on Linkedin and Youtube among different groups represented by distinct colors on the plot?
+```{r}
+# Create a data frame with cluster membership
+data_clustered <- data.frame(data, Cluster = kmeans_model$cluster)  # Ensure conversion to data frame
+
+# Scatter plot of data points colored by cluster membership
+plot(data_clustered$LinkedIn, data_clustered$youtube, 
+     col = data_clustered$Cluster, pch = 16, 
+     xlab = "Linkedin", ylab = "youtube",  
+     main = "Scatter Plot of Clustering")
+legend("topright", legend = unique(data_clustered$Cluster), 
+       col = 1:max(data_clustered$Cluster), pch = 16, title = "Cluster")
+
+```
+
+Overall, this plot visualizes clusters in the data, helping us understand
+how data points group together based on the Linkedin and Youtube, with each group 
+represented by a different color on the plot.
+
+
+
+
+
+
+
+
+
+
