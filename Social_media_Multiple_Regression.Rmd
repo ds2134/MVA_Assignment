@@ -1,0 +1,135 @@
+---
+title: "Social _media_Regression"
+author: "Deviprasad Saka"
+date: "2024-04-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+sm <- read.csv("D:/Multivariate Analysis/Social media regression/social_media_cleaned.csv")
+str(sm)
+
+```
+
+Multiple Regression
+
+```{r}
+sm2 <- sm[, 2:10]
+sm2
+
+```
+
+Q1.Model Development
+```{r}
+# Performing multiple regression on the dataset
+fit <- lm(sm2$How.you.felt.the.entire.week. ~ Instagram + LinkedIn + SnapChat + Twitter + Whatsapp.Wechat + youtube + OTT + Reddit, data = sm2)
+
+# Show the results
+summary(fit)
+
+
+
+```
+
+The linear regression model predicts "How you felt the entire week?" based on social media usage variables including Instagram, LinkedIn, SnapChat, Twitter, Whatsapp/Wechat, youtube, OTT, and Reddit. Coefficients represent the estimated effect of each predictor variable on the response variable. However, most coefficients are not statistically significant at the 0.05 level, indicating weak evidence of association. The model explains approximately 28.07% of the variability in "How you felt the entire week?" as indicated by the multiple R-squared value. Nonetheless, the adjusted R-squared value is negative, suggesting potential issues with model fit or overfitting. The overall model is not statistically significant according to the F-statistic with a p-value of 0.7725.
+
+```{r}
+coefficients(fit)
+```
+The coefficients represent the estimated impact of each social media platform on "How you felt the entire week?" The positive coefficients for LinkedIn, Twitter, Whatsapp/Wechat, and YouTube suggest a potential positive association with mood, while negative coefficients for Instagram, OTT, and Reddit imply a negative association. The intercept represents the estimated mood score when all predictors are zero.
+
+```{r}
+fitted(fit)
+```
+Residual Analysis
+
+```{r}
+library(GGally)
+ggpairs(data=sm2, title="Social-Media")
+```
+
+```{r}
+plot(fit, which=1) # Residuals vs Fitted
+plot(fit, which=2) # Normal Q-Q plot
+
+```
+
+This graph is a Q-Q (Quantile-Quantile) plot, which is a diagnostic tool used to assess the normality of a dataset's distribution. The x-axis represents the theoretical quantiles, while the y-axis shows the standardized residuals.In an ideal normal distribution, the points would fall along a straight diagonal line. However, in this plot, the points show some deviation from the diagonal, particularly in the tails. This suggests the data may not fully conform to a normal distribution and could indicate the presence of outliers or other non-normal characteristics. The Q-Q plot provides a visual way to evaluate the assumption of normality, which is an important consideration in many statistical analyses. Identifying departures from normality can inform the choice of appropriate modeling techniques or the need for further data exploration and transformation.
+
+
+
+```{r}
+residuals <- residuals(fit)
+```
+
+```{r}
+#Plot residuals against fitted values to check for homoscedasticity
+plot_resid_fitted <- ggplot() +
+  geom_point(aes(x = fitted(fit), y = residuals)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(x = "Fitted Values", y = "Residuals",
+       title = "Residuals vs Fitted Values Plot") +
+  theme_minimal()
+print(plot_resid_fitted)
+
+```
+
+This graph is a Residuals vs Fitted Values plot, which is a common diagnostic tool used in regression analysis. The key points about this plot are:
+
+1. The x-axis represents the fitted values from the regression model, while the y-axis shows the residuals (the differences between the observed and predicted values).
+
+2. The plot displays the relationship between the fitted values and the residuals. Ideally, the residuals should be randomly scattered around the horizontal line at y = 0, with no clear patterns or trends.
+
+3. In this plot, the residuals appear to be randomly distributed around the zero line, suggesting the regression model is adequately capturing the relationships in the data and the assumptions of the model are met.
+
+This plot allows the analyst to visually assess the linearity, homoscedasticity, and independence of the residuals, which are important assumptions for the validity of the regression analysis.
+
+The residual vs. fitted plot is a diagnostic tool used to assess the suitability of a regression model and its adherence to key assumptions. By examining the dispersion of points around the zero line, one can ascertain whether the model accurately captures the data's underlying patterns or if adjustments are needed. If a discernible pattern emerges, it suggests inadequacies in the model's fit.
+
+Q2 Prediction
+
+```{r}
+predict(fit, newdata = data.frame(Instagram = 8, LinkedIn = 5, SnapChat = 4, Twitter = 4, 
+                                  `Whatsapp/Wechat` = 4, youtube = 8, OTT = 3, Reddit = 4))
+
+```
+Q3:  Model Accuracy
+```{r}
+#Make predictions using the model
+predicted <- predict(fit, newdata = sm2)
+```
+
+```{r}
+#Calculating RMSE by taking the square root of the mean of the squared differences between the actual values and the predicted values (predicted)
+rmse <- sqrt(mean((sm2$How.you.felt.the.entire.week. - predicted)^2))
+rmse
+```
+
+RMSE is a measure of the differences between values predicted by a model and the observed values. In this case, an RMSE value of 0.6177979 indicates that, on average, the model's predictions deviate from the observed values by approximately 0.6177979 units. A lower RMSE value indicates better performance of the model in terms of prediction accuracy.Low RMSE0.617797 between 0 and 1 indicates that the models predictions are quite accurate, with small deviations from the actual values.
+
+
+Visualizations
+
+```{r}
+library(car)
+#Nonlinearity
+# component + residual plot
+crPlots(fit)
+```
+
+These are component plus residual plots (also known as partial regression plots) for different social media platforms and services like Instagram, LinkedIn, Snapchat, Twitter, WhatsApp/WeChat, YouTube, OTT, and Reddit. Each graph displays the relationship between the response variable and a predictor variable, controlling for the effects of other predictors in the model. The x-axis shows the component plus residual values for a predictor, while the y-axis shows the residuals from the model. The plots help to identify non-linear relationships, outliers, and the influence of individual data points on the regression fit, with the pink curve indicating the trend.
+
+```{r}
+# plot studentized residuals vs. fitted values
+library(car)
+spreadLevelPlot(fit)
+```
+
+This graph is a Spread-Level Plot for model fit, typically used to assess variance homogeneity in residuals from regression analysis. The x-axis represents the fitted values from a model, while the y-axis shows the absolute standardized residuals. The plot reveals patterns in the spread of residuals across the range of fitted values. If residuals are evenly spread, it suggests homoscedasticity. Here, a curve (pink solid line) is fitted through the data points, and a reference dashed line is also provided. The upward trend of the curve suggests increasing variability of residuals as fitted values rise, indicating potential heteroscedasticity.
+
+
