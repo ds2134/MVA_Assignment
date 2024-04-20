@@ -1,0 +1,295 @@
+---
+title: "Social_media_Logistic_Regression"
+author: "Deviprasad Saka"
+date: "2024-04-18"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(ggplot2)
+library(cowplot)
+#library(regclass)
+library(caret)
+```
+
+
+```{r}
+library(e1071)
+library(pROC)
+
+```
+
+
+```{r}
+data <- read.csv("D:/Multivariate Analysis/Assignment-8/social_media_final.csv", row.names=1)
+data
+```
+
+
+```{r}
+head(data)
+```
+
+
+```{r}
+
+xtabs(~ Tired.waking.up.in.morning + Instagram_Usage, data=data)
+```
+
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + LinkedIn_Usage, data=data)
+
+```
+
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Snapchat_Usage, data=data)
+```
+
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Twitter_Usage, data=data)
+```
+
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Youtube_Usage, data=data)
+```
+
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + OTT, data=data)
+```
+
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Reddit, data=data)
+```
+
+
+Q1: Model Developement
+```{r}
+logistic_simple <- glm(Tired.waking.up.in.morning ~ Instagram_Usage, data=data, family="binomial")
+summary(logistic_simple)
+```
+
+The logistic regression model suggests that Instagram usage is not a significant predictor of feeling tired upon waking up in the morning (p = 0.669). The intercept indicates a baseline tiredness level of approximately -1.08475 when Instagram usage is zero, with a small increase in tiredness log-odds (0.06669) for each unit increase in Instagram usage. The model's fit is modest, with slightly lower residual deviance compared to null deviance, and an AIC of 30.55.
+
+
+```{r}
+
+Less_hours.log.odds <- -1.08475
+Less_hours.log.odds
+```
+
+
+```{r}
+more_hours.log.odds.ratio <- 0.06669
+more_hours.log.odds.ratio
+
+```
+
+
+```{r}
+predicted.data <- data.frame(probability.of.hd=logistic_simple$fitted.values, Instagram=data$Instagram_Usage)
+predicted.data
+```
+
+
+```{r}
+xtabs(~ probability.of.hd + Instagram, data=predicted.data)
+```
+
+The table provides a matrix of probabilities indicating the likelihood of having a certain condition (possibly "hd") for individuals with varying levels of Instagram usage. Each row corresponds to a specific probability of having the condition, while each column represents a different level of Instagram usage. The values in the table denote the probability of having the condition for individuals at the intersection of a particular Instagram usage level and probability row. For instance, an individual with an Instagram usage level of 3.5 has a 29.9% probability of having the condition, while an individual with an Instagram usage level of 12.1 has a 43.1% probability.
+
+
+Q2.Model Acceptance
+```{r}
+logistic <- glm(Tired.waking.up.in.morning ~ ., data=data, family="binomial")
+summary(logistic)
+```
+
+The logistic regression model aims to predict tiredness upon waking up in the morning based on various factors. The coefficients indicate the effect of each predictor on tiredness likelihood. Notably, none of the predictors show significant effects, as indicated by their high p-values (all > 0.05). The model's fit is excellent, evidenced by the extremely low residual deviance and AIC, suggesting it explains the data well. However, the coefficients' magnitudes are notably large, possibly indicating issues like multicollinearity or overfitting.
+
+
+Q3.Residual Analysis
+```{r}
+anova(logistic)
+
+```
+
+
+```{r}
+#"Pseudo R-squared" and its p-value
+ll.null <- logistic$null.deviance/-2
+ll.proposed <- logistic$deviance/-2
+(ll.null - ll.proposed) / ll.null
+```
+
+The pseudo R-squared value resulting from the provided code is one, it suggests that the proposed model perfectly fits the data compared to the null model. This indicates that all variability in the response variable is explained by the predictors, implying a highly significant improvement in model fit.
+
+
+```{r}
+# The p-value for the R^2
+1 - pchisq(2*(ll.proposed - ll.null), df=(length(logistic$coefficients)-1))
+```
+
+
+A p-value of 0.002869279 for the R^2 indicates that the improvement in model fit compared to the null model is statistically significant. This suggests strong evidence against the null hypothesis, supporting the conclusion that the proposed model provides a better fit to the data than the null model.
+
+
+Q4.Prediction
+```{r}
+
+library(ggplot2)
+
+# Create predicted data frame
+predicted.data <- data.frame(probability.of.hd = logistic$fitted.values,
+                              Tired.waking.up.in.morning = data$Tired.waking.up.in.morning)
+predicted.data <- predicted.data[order(predicted.data$probability.of.hd, decreasing = FALSE),]
+predicted.data$rank <- 1:nrow(predicted.data)
+
+# Plot using ggplot with a smooth line
+ggplot(data = predicted.data, aes(x = rank, y = probability.of.hd)) +
+  geom_point(aes(color = factor(Tired.waking.up.in.morning)), alpha = 0.7, shape = 16, size = 3) +  # Larger points for better visibility
+  geom_smooth(method = "loess", se = FALSE, linetype = "dotted", color = "blue") +  # Add a smoothed line
+  scale_color_manual(values = c("blue", "red"), labels = c("Not Tired", "Tired")) +  # Custom color scheme
+  labs(x = "Index", y = "Predicted Probability of Feeling Tired upon Waking Up") +  # Custom axis labels
+  theme_minimal() +  # Minimalist theme
+  theme(legend.position = "right")  # Legend position
+
+```
+
+The plot is a graphical representation of a predictive model, depicting the probability of feeling tired upon waking up in the morning against an index. Blue dots labeled "Not Tired" represent lower probabilities, while red dots labeled "Tired" indicate higher probabilities. The model suggests a threshold around the index 15, where there's a significant increase in the predicted probability of feeling tired. The dotted line likely represents a fitted curve, showing how the probability changes across different index values, with a steep incline around the threshold. This visualization could be used to understand factors influencing morning tiredness or evaluate a model predicting tiredness.
+
+
+```{r}
+# From Caret
+pdata <- predict(logistic,newdata=data,type="response" )
+pdata
+
+```
+
+
+```{r}
+data$Tired.waking.up.in.morning
+```
+
+
+Q5: Accuracy
+```{r}
+pdataF <- as.factor(ifelse(test=as.numeric(pdata>0.5) == 0, yes="0", no="1"))
+data$Tired.waking.up.in.morning <- factor(data$Tired.waking.up.in.morning, levels = c("0", "1"))
+levels(pdataF) <- levels(data$Tired.waking.up.in.morning)
+confusionMatrix(pdataF, data$Tired.waking.up.in.morning)
+```
+
+
+The confusion matrix presents the classification results of a binary classifier. It shows that out of 21 instances, 14 were correctly classified as 0 and 7 as 1, yielding perfect accuracy of 1. The Kappa statistic also indicates perfect agreement beyond chance. Sensitivity, specificity, positive predictive value, and negative predictive value are all 1, indicating perfect performance in both identifying positive and negative cases. The balanced accuracy, which considers imbalanced class sizes, is also 1. Overall, the model demonstrates exceptional performance, accurately classifying all instances with high confidence.
+
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE)
+```
+
+The image displays a Receiver Operating Characteristic (ROC) curve, which is a graphical representation of a binary classification system's diagnostic ability. The curve plots sensitivity (true positive rate) on the y-axis against 1-specificity (false positive rate) on the x-axis across different threshold settings. This particular ROC curve showcases an ideal scenario where the classifier achieves perfect sensitivity and specificity, indicating that it can perfectly distinguish between the two classes without error. The diagonal line represents the performance of a random guess, and the plot shows that the classifier's performance is significantly above random chance, marking it as an excellent model.
+
+
+```{r}
+par(pty = "s")
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE)
+```
+
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE)
+
+```
+
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage")
+```
+
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4)
+
+```
+
+
+```{r}
+roc.info <- roc(data$Tired.waking.up.in.morning, logistic$fitted.values, legacy.axes=TRUE)
+```
+
+
+```{r}
+str(roc.info)
+```
+
+
+# tpp(true positive percentage) &  fpp(false positive precentage)
+```{r}
+roc.df <- data.frame(tpp=roc.info$sensitivities*100, fpp=(1 - roc.info$specificities)*100, thresholds=roc.info$thresholds)
+roc.df
+```
+
+
+```{r}
+head(roc.df)
+```
+
+The table provides data on true positive percentages (TPP), false positive percentages (FPP), and corresponding thresholds for a classification task. Each row represents a threshold value, with associated TPP and FPP. As the threshold decreases, TPP remains consistently high at 100%, while FPP also remains constant at 100%. This suggests that regardless of the threshold chosen, the classification consistently results in all instances being classified as positive, indicating potential issues with model performance or data imbalance.
+
+
+```{r}
+tail(roc.df)
+```
+
+
+```{r}
+roc.df[roc.df$tpp > 60 & roc.df$tpp < 80,]
+```
+
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE)
+```
+
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE, print.auc=TRUE)
+```
+
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE, print.auc=TRUE, partial.auc=c(100, 90), auc.polygon = TRUE, auc.polygon.col = "#377eb822", print.auc.x=45)
+```
+
+
+```{r}
+# Lets do two roc plots to understand which model is better
+roc(data$Tired.waking.up.in.morning, logistic_simple$fitted.values, plot=TRUE, legacy.axes=TRUE, percent=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, print.auc=TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
