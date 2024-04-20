@@ -1,0 +1,245 @@
+---
+title: "Logistic_Regression"
+author: "Deviprasad Saka"
+date: "2024-04-18"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+library(ggplot2)
+library(cowplot)
+library(regclass)
+library(caret)
+library(e1071)
+library(pROC)
+library(readxl)
+library(dplyr)
+library(ROCR)
+library(dplyr)
+library(tidyr)
+library(MASS)
+```
+
+
+```{r}
+file_path <- "D:/Multivariate Analysis/Assignment-8/Ship_data.csv"
+mydata <- read.csv(file_path)
+str(mydata)
+```
+Q1: Model developement
+
+```{r}
+
+# Load necessary library
+library(dplyr)
+
+# Create binary outcome variable: high resistance (1) vs. low resistance (0)
+ship_data <- mydata %>%
+  mutate(tot_r_Binary = ifelse(tot_r > median(tot_r), 1, 0))
+
+```
+
+Q2.Model Acceptance
+
+```{r}
+
+threshold <- 200
+
+mydata$tot_r_Binary <- ifelse(mydata$tot_r > threshold, 1, 0)
+
+logit_model <- glm(tot_r_Binary ~ Power + n + V, 
+                   data = mydata, 
+                   family = binomial)
+
+summary(logit_model)
+
+```
+This summary presents the results of a logistic regression model fitted to predict the binary outcome variable `tot_r_Binary` based on three predictor variables: `Power`, `n`, and `V`. 
+
+Coefficients: These represent the estimated effects of each predictor on the log-odds of the response variable being 1. For instance, a one-unit increase in `Power` is associated with a decrease of approximately -2.337e-12 in the log-odds, while `n` and `V` have negligible estimated effects.
+
+Std. Error: These indicate the uncertainty in the estimated coefficients. Larger standard errors suggest less precise estimates.
+
+z value and Pr(>|z|): These are used to assess the significance of the coefficients. A z value of 0 and a p-value of 1 for all coefficients indicate that none of the predictors are statistically significant.
+
+Deviance: Measures of model fit. The residual deviance represents the difference between the observed and predicted responses after model fitting. Smaller deviance values suggest better fit.
+
+AIC (Akaike Information Criterion): A measure of model goodness-of-fit that penalizes for model complexity. AIC of 8 indicates good fit relative to other models.
+
+Number of Fisher Scoring iterations: Indicates the number of iterations required for the optimization algorithm to converge. Here, it took 25 iterations.
+
+Overall, the model appears to have poor predictive power as none of the predictors are statistically significant, and the null deviance is not substantially reduced.
+
+
+
+```{r}
+residuals(logit_model)
+```
+
+```{r}
+plot(logit_model, which = 1)
+```
+
+This graph is a residual plot, showing the residuals (differences between observed and fitted values) on the y-axis versus the fitted values on the x-axis. It helps assess the fit of a regression model. The residuals are randomly scattered around the horizontal line at 0, indicating the assumptions of linearity and constant variance are reasonably met. No apparent patterns or trends suggest the linear model is appropriate. Most residuals fall within the range of -100 to 100, though a few outliers exist around the fitted value of 750. The spread of residuals appears constant across fitted values, further supporting constant variance. The red smoothed curve is approximately horizontal and close to 0, confirming the overall lack of pattern in residuals. In summary, this plot suggests a reasonably well-fitted linear regression model, but the presence of outliers may require further investigation or model adjustments.
+
+
+Q3.Residual Analysis
+```{r}
+
+anova(logit_model)
+
+```
+This analysis of deviance table provides insight into the sequential addition of predictor variables (`Power`, `n`, and `V`) to the logistic regression model predicting `tot_r_Binary`. 
+
+- The initial model with no predictors (NULL) had a deviance of 0.
+- The subsequent addition of each predictor did not reduce the residual deviance, indicating that none of the predictors significantly improved model fit.
+- All added terms resulted in a residual deviance of approximately 5.7436e-10, suggesting that the model did not gain explanatory power with the inclusion of these variables.
+
+
+
+```{r}
+
+# Residual Analysis
+plot(logit_model)
+
+```
+
+
+This residual plot evaluates the assumptions and goodness-of-fit of a regression model by plotting residuals (differences between observed and fitted values) on the y-axis against fitted values on the x-axis. The residuals are randomly scattered around the horizontal line, indicating linearity. The spread of residuals is relatively constant across fitted values, suggesting homoscedasticity. There are a few potential outliers, particularly around the fitted value of 750. The red smoothed curve fitted to the residuals appears horizontal and close to 0, confirming the overall lack of pattern. Most residuals concentrate within the range of -100 to 100. Overall, the plot suggests a reasonably well-fitted regression model, but the presence of outliers may warrant further investigation or model adjustments to improve the fit.
+
+In the Q-Q (Quantile-Quantile) plot , the points deviate substantially from the line, particularly in the tails, indicating a violation of the normality assumption for the residuals. This suggests that the regression model may need to be improved or that transformations of the data may be necessary.
+
+The Scale-Location plot assesses the assumptions of constant variance (homoscedasticity) and presence of outliers in a regression analysis. The y-axis represents the square root of standardized residuals, and the x-axis shows predicted values. The relatively constant spread of residuals across predicted values suggests homoscedasticity is met. A few potential outliers are visible, particularly high positive residuals around the predicted value of 750. The red smoothed curve's flat shape further supports constant variance. Most residuals concentrate within -100 to 100 predicted values range. Overall, this plot indicates the homoscedasticity assumption is reasonably satisfied, but some outliers may need further investigation or model adjustments.
+
+
+The Residuals vs Leverage diagram, used to identify influential data points when fitting a regression model. It plots standardized residuals against leverage values. Points far from zero on the y-axis have large residuals, and points far to the right on the x-axis have high leverage. Cook's distance contours help identify points that might unduly influence the regression line. Data points labeled 18, 27, and 29 stand out for their high leverage, with 27 and 29 also having high residuals, indicating they may be influential points warranting further investigation. The red line indicates a potential threshold for influence.
+
+
+Q4.Prediction
+```{r}
+# Make predictions on the same dataset
+predicted_values <- predict(logit_model, type = "response")
+# Convert predicted probabilities to binary predictions (0 or 1) based on a threshold 0.5
+predicted_class <- ifelse(predicted_values > 0.5, 1, 0)
+predicted_class
+```
+
+
+```{r}
+# Load necessary libraries
+library(pROC)
+library(ROCR)
+
+# Load the dataset
+ship_data <- read.csv("Ship_data.csv")
+
+# Convert the target variable 'tot_r' to binary
+threshold <- median(ship_data$tot_r)
+ship_data$tot_r_Binary <- ifelse(ship_data$tot_r > threshold, 1, 0)
+
+# Split data into training and test sets
+set.seed(123)  # For reproducibility
+train_indices <- sample(1:nrow(ship_data), 0.7 * nrow(ship_data))
+train_data <- ship_data[train_indices, ]
+test_data <- ship_data[-train_indices, ]
+
+# Fit a logistic regression model on the training data
+logit_model <- glm(tot_r_Binary ~ ., data = train_data, family = binomial)
+
+# Calculate predicted probabilities for the test data
+predicted_prob <- predict(logit_model, newdata = test_data, type = "response")
+
+# Ensure predicted probabilities are within the valid range [0, 1]
+predicted_prob <- pmax(pmin(predicted_prob, 1), 0)
+
+# Create prediction object
+predictions <- prediction(predicted_prob, test_data$tot_r_Binary)
+
+# Plot ROC curve
+roc_curve <- performance(predictions, "tpr", "fpr")
+plot(roc_curve, main = "ROC Curve", col = "blue", lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "red")  # Add a diagonal line (random classifier)
+
+# Calculate AUC
+auc_value <- performance(predictions, "auc")@y.values[[1]]
+cat("Area Under the Curve (AUC):", auc_value)
+
+```
+
+
+This plot is a Receiver Operating Characteristic (ROC) curve, a graphical representation used to assess the performance of a binary classifier system. It plots the true positive rate (TPR) against the false positive rate (FPR) at various threshold settings. The curve starts at the bottom left corner (0,0) and ideally reaches close to the top left corner (0,1), indicating a high true positive rate with a low false positive rate. The closer the curve follows the left-hand border and then the top border of the ROC space, the more accurate the test. The diagonal dashed line represents random chance.
+
+
+```{r}
+# Calculate AUC value
+auc_value <- as.numeric(performance(predictions, "auc")@y.values)
+cat("AUC:", auc_value, "\n")
+
+
+```
+An AUC (Area Under the Curve) value of 0.96 indicates that the model has excellent discriminatory ability. AUC is a measure of the model's ability to distinguish between the positive and negative classes. In this case, a value of 0.96 suggests that the model correctly ranks 96% of randomly chosen positive instances higher than randomly chosen negative instances. 
+
+In practical terms, an AUC of 0.96 implies that when the model predicts the probability of an event (e.g., a positive outcome), it correctly assigns higher probabilities to instances where the event actually occurs compared to instances where it does not. Therefore, a higher AUC indicates better model performance in terms of classification accuracy, with 1.0 representing perfect discrimination.
+
+```{r}
+
+# Prediction 
+new_data <- mydata[1:10, ]
+predictions <- predict(logit_model, newdata = new_data, type = "response")
+print(predictions)
+
+
+```
+
+
+```{r}
+hist(predicted_prob, breaks = 20, col = "lightblue", main = "Histogram of Predicted Probabilities",
+     xlab = "Predicted Probability", ylab = "Frequency")
+```
+
+Q5: Accuracy
+```{r}
+# Model Acceptance
+predicted <- predict(logit_model, newdata = test_data, type = "response")
+predicted_binary <- ifelse(predicted > 0.5, 1, 0)
+confusion <- table(predicted_binary, test_data$tot_r_Binary)
+accuracy <- sum(diag(confusion)) / sum(confusion)
+precision <- confusion[2, 2] / sum(confusion[, 2])
+recall <- confusion[2, 2] / sum(confusion[2, ])
+f1_score <- 2 * precision * recall / (precision + recall)
+
+# Ensure response variable is binary
+if (length(levels(test_data$tot_r_Binary)) > 2) {
+  test_data$tot_r_Binary <- ifelse(test_data$tot_r_Binary == "control", 0, 1)
+}
+
+# Model Accuracy
+cat("Accuracy:", accuracy, "\n")
+
+```
+
+An accuracy of 0.9666667 means that the model correctly predicts the outcome for approximately 96.67% of the observations in the test dataset. In other words, out of all the instances in the test dataset, the model accurately classifies the target variable (tot_r_Binary) as either high resistance or low resistance about 96.67% of the time.
+
+```{r}
+cat("Precision:", precision, "\n")
+
+```
+
+Precision of 0.9333333 means that out of all the instances predicted as positive (high resistance), approximately 93.33% were correctly classified. It measures the proportion of correctly identified positive instances among all instances predicted as positive, indicating the model's ability to avoid false positives.
+
+```{r}
+cat("Recall:", recall, "\n")
+
+```
+
+
+A recall of 1 means that the model correctly identifies all positive instances in the test dataset. In other words, it captures all instances of the high-resistance category (positive class) without missing any. This indicates that the model has a high ability to detect instances of high resistance, minimizing false negatives.
+
+```{r}
+cat("F1-score:", f1_score, "\n")
+
+```
+An F1-score of 0.9655172 indicates that the model achieves a balanced performance between precision and recall. It considers both false positives and false negatives, providing a single metric that balances the trade-off between precision and recall, making it useful for evaluating binary classification models.
+
