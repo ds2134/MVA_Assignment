@@ -1,0 +1,234 @@
+---
+title: "Social_media_Logistic_Regression"
+author: "Deviprasad Saka"
+date: "2024-04-18"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(cowplot)
+#library(regclass)
+library(caret)
+```
+
+
+```{r}
+library(e1071)
+library(pROC)
+
+```
+
+
+```{r}
+data <- read.csv("D:/Multivariate Analysis/Assignment-8/social_media_final.csv", row.names=1)
+data
+```
+
+
+```{r}
+head(data)
+```
+
+
+```{r}
+
+xtabs(~ Tired.waking.up.in.morning + Instagram_Usage, data=data)
+```
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + LinkedIn_Usage, data=data)
+
+```
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Snapchat_Usage, data=data)
+```
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Twitter_Usage, data=data)
+```
+
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Youtube_Usage, data=data)
+```
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + OTT, data=data)
+```
+
+```{r}
+xtabs(~ Tired.waking.up.in.morning + Reddit, data=data)
+```
+
+
+```{r}
+logistic_simple <- glm(Tired.waking.up.in.morning ~ Instagram_Usage, data=data, family="binomial")
+summary(logistic_simple)
+```
+
+```{r}
+
+Less_hours.log.odds <- -1.08475
+Less_hours.log.odds
+```
+
+```{r}
+more_hours.log.odds.ratio <- 0.06669
+more_hours.log.odds.ratio
+
+```
+
+```{r}
+predicted.data <- data.frame(probability.of.hd=logistic_simple$fitted.values, Instagram=data$Instagram_Usage)
+predicted.data
+```
+
+```{r}
+xtabs(~ probability.of.hd + Instagram, data=predicted.data)
+```
+
+
+```{r}
+logistic <- glm(Tired.waking.up.in.morning ~ ., data=data, family="binomial")
+summary(logistic)
+```
+
+
+```{r}
+#"Pseudo R-squared" and its p-value
+ll.null <- logistic$null.deviance/-2
+ll.proposed <- logistic$deviance/-2
+(ll.null - ll.proposed) / ll.null
+```
+
+
+```{r}
+# The p-value for the R^2
+1 - pchisq(2*(ll.proposed - ll.null), df=(length(logistic$coefficients)-1))
+```
+
+
+```{r}
+
+
+library(ggplot2)
+
+# Create predicted data frame
+predicted.data <- data.frame(probability.of.hd = logistic$fitted.values,
+                              Tired.waking.up.in.morning = data$Tired.waking.up.in.morning)
+predicted.data <- predicted.data[order(predicted.data$probability.of.hd, decreasing = FALSE),]
+predicted.data$rank <- 1:nrow(predicted.data)
+
+# Plot using ggplot with a smooth line
+ggplot(data = predicted.data, aes(x = rank, y = probability.of.hd)) +
+  geom_point(aes(color = factor(Tired.waking.up.in.morning)), alpha = 0.7, shape = 16, size = 3) +  # Larger points for better visibility
+  geom_smooth(method = "loess", se = FALSE, linetype = "dotted", color = "blue") +  # Add a smoothed line
+  scale_color_manual(values = c("blue", "red"), labels = c("Not Tired", "Tired")) +  # Custom color scheme
+  labs(x = "Index", y = "Predicted Probability of Feeling Tired upon Waking Up") +  # Custom axis labels
+  theme_minimal() +  # Minimalist theme
+  theme(legend.position = "right")  # Legend position
+
+```
+
+```{r}
+# From Caret
+pdata <- predict(logistic,newdata=data,type="response" )
+pdata
+
+```
+
+```{r}
+data$Tired.waking.up.in.morning
+```
+
+```{r}
+pdataF <- as.factor(ifelse(test=as.numeric(pdata>0.5) == 0, yes="0", no="1"))
+data$Tired.waking.up.in.morning <- factor(data$Tired.waking.up.in.morning, levels = c("0", "1"))
+levels(pdataF) <- levels(data$Tired.waking.up.in.morning)
+confusionMatrix(pdataF, data$Tired.waking.up.in.morning)
+```
+
+# From pROC
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE)
+```
+```{r}
+par(pty = "s")
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE)
+```
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE)
+
+```
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage")
+```
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4)
+
+```
+
+```{r}
+roc.info <- roc(data$Tired.waking.up.in.morning, logistic$fitted.values, legacy.axes=TRUE)
+```
+
+```{r}
+str(roc.info)
+```
+
+
+# tpp(true positive percentage) &  fpp = false positive precentage
+```{r}
+roc.df <- data.frame(tpp=roc.info$sensitivities*100, fpp=(1 - roc.info$specificities)*100, thresholds=roc.info$thresholds)
+roc.df
+```
+
+```{r}
+head(roc.df)
+```
+
+```{r}
+tail(roc.df)
+```
+
+```{r}
+roc.df[roc.df$tpp > 60 & roc.df$tpp < 80,]
+```
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE)
+```
+
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE, print.auc=TRUE)
+```
+```{r}
+roc(data$Tired.waking.up.in.morning, logistic$fitted.values, plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE, print.auc=TRUE, partial.auc=c(100, 90), auc.polygon = TRUE, auc.polygon.col = "#377eb822", print.auc.x=45)
+```
+```{r}
+# Lets do two roc plots to understand which model is better
+roc(data$Tired.waking.up.in.morning, logistic_simple$fitted.values, plot=TRUE, legacy.axes=TRUE, percent=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, print.auc=TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
