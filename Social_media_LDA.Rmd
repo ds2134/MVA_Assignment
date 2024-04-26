@@ -1,0 +1,89 @@
+---
+title: "Social_media_LDA"
+author: "Deviprasad Saka"
+date: "2024-04-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(MASS)
+library(readxl)
+library(ROCR)
+
+mydata <- read_excel("D:/Multivariate Analysis/Assignment-9/social_media_cleaned (1).xlsx")
+mydata$Binary_tfs <- ifelse(mydata$Tired_waking_in_morning == "1", 1, 0)
+```
+
+
+
+Q1: Model Developement
+```{r}
+lda_model <- lda(Binary_tfs ~ Instagram +	LinkedIn + SnapChat + Twitter +	`Whatsapp/Wechat` +	youtube +	OTT +	Reddit, data = mydata)
+```
+
+The provided code performs Linear Discriminant Analysis (LDA) using the `lda` function from the `MASS` package in R. It creates an LDA model named `lda_model` to classify the binary response variable `Binary_tfs` based on the predictor variables `Instagram`, `LinkedIn`, `SnapChat`, `Twitter`, `Whatsapp/Wechat`, `youtube`, `OTT`, and `Reddit`. The predictor variables are separated by `+` in the formula, and the response variable is separated from the predictors by `~`. The data frame `mydata` is specified as the source of the variables. After running this code, the `lda_model` object can be used for obtaining coefficients, predicted values, and other model diagnostics.
+
+
+
+
+Q2: Model Acceptance
+
+```{r}
+summary(lda_model)
+print(lda_model)
+```
+
+The provided output is from a Linear Discriminant Analysis (LDA) model trained to classify the binary response variable `Binary_tfs` using the predictor variables `Instagram`, `LinkedIn`, `SnapChat`, `Twitter`, `Whatsapp/Wechat`, `youtube`, `OTT`, and `Reddit`. The prior probabilities show the proportions of each class (0.667 for 0 and 0.333 for 1) in the data. The group means provide the mean values of each predictor for the two classes, indicating how the classes differ in terms of these variables. The coefficients of the linear discriminant (LD1) represent the importance and direction of influence of each predictor on the classification, with larger absolute values indicating higher importance. For example, `Twitter` has the largest negative coefficient (-0.906), suggesting higher Twitter usage is associated with class 0, while `LinkedIn` has a relatively large negative coefficient (-0.207), implying lower LinkedIn usage is linked to class 0. These coefficients can be used to interpret the model and understand the relationships between the predictors and the response variable.
+
+Q3: Residual Analysis
+
+```{r}
+plot(lda_model)
+```
+
+Group 0: This histogram has a somewhat symmetrical distribution with a slight skew to the right. There are two prominent peaks around the -0.5 and 0.5 values on the x-axis, which suggests that there are more observations around those values. The bins around -2, -1, 0, and 1 have fewer observations. This could indicate a bimodal distribution or that the variable has two common values within this group.
+
+Group 1: The histogram for this group shows a different distribution, with the highest frequency observed in the far right bin, around the value of 1 on the x-axis. This peak is noticeably higher than the others, indicating a concentration of observations in that bin. The histogram also shows a moderate number of observations around -1 and 0, with fewer observations in the bins at the extremes of -2 and 1. This distribution suggests that the variable has a common value around 1, with other values being less frequent.
+
+Overall, the histograms suggest that the two groups have different distributions of the same variable, with group 0 having a more evenly spread or bimodal distribution and group 1 having a right-skewed distribution with a concentration of observations at the higher end of the scale. Without further context, such as units or labels for the x-axis, we cannot determine the exact nature of the variable being measured.
+
+
+Q4:Prediction
+```{r}
+lda_predictions <- predict(lda_model, newdata = mydata)
+lda_predictions
+
+predicted_classes <- lda_predictions$class
+predicted_classes
+lda_predictions$x
+
+predicted_probabilities <- as.data.frame(lda_predictions$posterior)
+predicted_probabilities
+pred <- prediction(predicted_probabilities[,2], mydata$Binary_tfs)
+```
+
+Q5: Model Accuracy
+
+```{r}
+roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
+auc.train <- performance(pred, measure = "auc")
+auc.train <- auc.train@y.values
+plot(roc.perf, main = "ROC Curve", col = "blue", lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "red")
+text(x = .25, y = .65 ,paste("AUC = ", round(auc.train[[1]],3), sep = ""))
+```
+
+The Area Under the Curve (AUC) is a metric that summarizes the performance of the classifier across all possible threshold settings. A higher AUC value indicates better performance of the classifier. In this plot, the AUC is stated as 0.867, which suggests that the classifier is performing reasonably well, as an AUC of 1 indicates a perfect classifier, and an AUC of 0.5 represents a random classifier.
+
+The ROC curve itself shows how the true positive rate and false positive rate change as the classification threshold is varied. An ideal classifier would have an ROC curve that hugs the top-left corner of the plot, maximizing the true positive rate while minimizing the false positive rate.
+
+In this particular plot, the ROC curve exhibits a sharp upward curve towards the top-left corner, indicating that the classifier can achieve a high true positive rate with a relatively low false positive rate for certain threshold settings. However, the curve then flattens out, suggesting that further increases in the true positive rate come at the cost of a higher false positive rate.
+
+
+
+
