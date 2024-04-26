@@ -1,0 +1,265 @@
+---
+title: "LDA"
+author: "Deviprasad Saka"
+date: "2024-04-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(MASS)
+library(ggplot2)
+library(memisc)
+library(ROCR)
+library(dplyr)
+library(klaR)
+library(psych)
+```
+
+
+```{r}
+mydata <- read.csv("D:/Multivariate Analysis/Assignment-9/Ship_data.csv")
+mydata
+```
+
+
+```{r}
+str(mydata)
+```
+
+
+```{r}
+dt=mydata$dtime
+dt=as.factor(dt)
+```
+
+This code segment prepares the `dtime` variable from the `mydata` dataset for categorical analysis. It first assigns the `dtime` data to a new variable `dt`. Then, it converts `dt` into a factor variable using `as.factor()`, facilitating categorical representation with predefined levels or categories for further analysis.
+
+
+
+```{r}
+dim(mydata)
+```
+
+```{r}
+test1=mydata$'Hs'
+test2=mydata$'Power'
+```
+
+This code extracts two variables, 'Hs' and 'Power', from the 'mydata' dataset and assigns them to the variables 'test1' and 'test2', respectively.
+
+```{r}
+total_resistance=mydata$tot_r
+```
+
+
+```{r}
+pairs.panels(mydata[1:3])
+```
+
+This image is a multi-panel plot consisting of histograms and scatter plots with fitted lines, likely from a statistical analysis. The histograms display distributions for variables labeled "Hs," "Power," and "tot_r," with the "Hs" and "tot_r" histograms showing a right-skewed distribution and the "Power" histogram a more varied distribution. The scatter plots beneath the histograms suggest a strong positive linear relationship between two sets of measurements, as the data points closely follow the fitted line. The large numbers 0.99 and 1.00 in the right panels may indicate a high level of correlation or another metric of model fit.
+
+
+
+```{r}
+divi=sample(1:nrow(mydata), nrow(mydata)/2)
+divi
+```
+This code generates a random sample of row indices from the 'mydata' dataset. The function 'sample()' randomly selects row indices ranging from 1 to the total number of rows in 'mydata'. The argument 'nrow(mydata)/2' specifies the size of the sample, which is half the number of rows in 'mydata'. The resulting 'divi' variable contains the randomly selected row indices.
+
+
+```{r}
+part1=mydata[divi,]
+part2=mydata[-divi,]
+
+```
+
+This code splits the dataset 'mydata' into two parts, 'part1' and 'part2'. 'part1' contains the rows indexed by 'divi', which is a random sample of row indices obtained previously. These rows are selected from 'mydata' using square brackets and the indices in 'divi'. 'part2' contains the remaining rows of 'mydata', excluding the rows indexed by 'divi', which are denoted by '-divi'.
+
+
+Q1: Classification/ Model Developement
+```{r}
+lindis=lda(dt~test1+test2+total_resistance, data=part1)
+lindis
+```
+
+The output you provided is from the linear discriminant analysis (LDA) performed in R. LDA is a technique used for classifying observations into groups based on several predictor variables. In this case, the groups are "Afternoon," "Evening," "Morning," and "Night," and the predictor variables are "test1," "test2," and "total_resistance." Let's go through the output step by step:
+
+1. Prior probabilities of groups: These are the prior probabilities (or proportions) of each group in the data. In this case, the proportions are approximately equal, with the "Night" group having the highest proportion (0.2727273) and the "Evening" group having the lowest proportion (0.1919192).
+
+2. Group means: These are the mean values of the predictor variables for each group. For example, the mean value of "test1" for the "Afternoon" group is 3.238998, while for the "Morning" group, it is 3.823816.
+
+3. Coefficients of linear discriminants: This section provides the coefficients of the linear discriminant functions (LD1, LD2, and LD3) for each predictor variable. These coefficients are used to calculate the discriminant scores for each observation, which are then used to classify the observations into the different groups.
+
+   - LD1: The first linear discriminant function, which accounts for the largest possible proportion of the total variance (88.97%, as shown in the "Proportion of trace" section).
+   - LD2: The second linear discriminant function, which accounts for the second-largest possible proportion of the remaining variance (10.31%).
+   - LD3: The third linear discriminant function, which accounts for the remaining variance (0.72%).
+
+   The coefficients for each predictor variable in each linear discriminant function are given. For example, the coefficient of "test1" in LD1 is 1.237488626, while in LD2, it is 9.05245356.
+
+4. Proportion of trace: This section shows the proportion of the total variance in the predictor variables that is accounted for by each linear discriminant function. In this case, LD1 accounts for 88.97% of the total variance, LD2 accounts for 10.31%, and LD3 accounts for 0.72%.
+
+
+```{r}
+prd=predict(lindis, data=part2)
+prd
+```
+
+
+```{r}
+attributes(lindis)
+```
+
+These attributes provide various details about the fitted LDA model, including information about class priors, group means, number of observations, model terms, and other properties essential for interpreting and understanding the model.
+
+```{r}
+lindis$prior
+```
+
+The result "Afternoon 0.2828283, Evening 0.1919192, Morning 0.2525253, Night 0.2727273" represents the prior probabilities of the groups (time periods) in the Linear Discriminant Analysis (LDA) model stored in the object `lindis`. 
+
+- Afternoon has a prior probability of approximately 28.28%.
+- Evening has a prior probability of approximately 19.19%.
+- Morning has a prior probability of approximately 25.25%.
+- Night has a prior probability of approximately 27.27%.
+
+These probabilities indicate the estimated proportions of each group in the dataset before considering any predictor variables. They provide a baseline understanding of the distribution of classes in the dataset and are used as part of the LDA algorithm to calculate the posterior probabilities of group membership for individual observations.
+
+```{r}
+lindis$counts
+```
+
+
+The output "Afternoon   Evening   Morning     Night 
+       28        19        25        27" represents the counts of observations in each class (time period) in the training data used to fit the LDA model (lindis). Here's the breakdown:
+
+- Afternoon: There are 28 observations classified as "Afternoon".
+- **Evening: There are 19 observations classified as "Evening".
+- Morning: There are 25 observations classified as "Morning".
+- Night: There are 27 observations classified as "Night".
+
+These counts provide information about the distribution of classes in the training data. It indicates the number of instances available for each time period, which is essential for understanding the balance or imbalance in the dataset and can impact the model's performance and predictions.
+
+
+```{r}
+lindis$means
+```
+
+The output shows the means of predictor variables (test1, test2, total_resistance) for each group (time of day) based on the Linear Discriminant Analysis (LDA) model (`lindis`). Here's an explanation:
+
+- test1, test2, total_resistance: These are the predictor variables used in the LDA model.
+- Afternoon, Evening, Morning, Night: These are the groups or categories of the response variable (dt). Each row corresponds to a different time period, and the columns represent the mean values of the predictor variables for observations within that time period.
+  
+For example:
+- In the Afternoon group, the mean value of test1 is approximately 3.239, test2 is around 18816.87, and total_resistance is approximately 1222.199.
+- Similarly, the mean values for the Evening, Morning, and Night groups are provided in the subsequent rows.
+
+These means provide insights into the average values of predictor variables for different time periods, helping to understand how these variables vary across different groups.
+
+
+Q2: Model Acceptance
+```{r}
+lda.p=predict(lindis, newdata = mydata[,c(1,2,3)])$class
+lda.p
+```
+
+The result is a vector (lda.p) containing the predicted class labels for each observation in the new data. The output displays the predicted time of day for each observation, with each observation classified into one of four categories: Afternoon, Evening, Morning, or Night. The Levels section at the end shows the unique levels or categories of the predicted class labels. Overall, the code effectively applies the LDA model to new data and provides predictions for the time of day based on the given predictors.
+
+
+
+```{r}
+# Generate colors based on the predicted classes
+colors <- c("red", "blue", "green") # Adjust the colors as needed
+predicted_colors <- colors[as.integer(predict(lindis)$class)]
+
+# Plot the color plot
+plot(lindis, col = predicted_colors)
+
+```
+
+This image displays three separate scatter plots, labeled LD1, LD2, and LD3, which likely represent three different Linear Discriminant Analysis (LDA) dimensions used to separate multiclass data. Points on the plots are color-coded and labeled with various time-related categories such as "Morning," "Afternoon," "Evening," and "Night." The distribution of points suggests that the LDA model is effective at distinguishing between these categories based on their separation along the axes. Each plot shows data projected onto the respective LD axis, and the separation indicates that these LD dimensions capture meaningful variance related to the time of day.
+
+```{r}
+par(mar = c(5, 5, 2, 2))  # Adjust the margins (bottom, left, top, right)
+plot(lindis, dimen = 1, type = "both")
+```
+
+The image shows four separate histograms, each representing a different group labelled as "Afternoon," "Evening," "Morning," and "Night." These histograms are plotted against what appears to be a density curve that fits the distribution of the histogram bars.
+
+Here's a breakdown of each plot:
+
+1. Afternoon Group*: The histogram bars are somewhat evenly distributed across the x-axis, with a slight concentration around the -0.5 to 0.5 range. The density curve is relatively flat, suggesting a more uniform distribution of data.
+
+2. Evening Group: This histogram has a prominent peak around -1.5, indicating a significant number of observations in that bin. The density curve peaks sharply at this point, signifying a higher concentration of data.
+
+3. Morning Group: The histogram bars are spread out, with some notable peaks around -1.25, 0.25, and 1.25. The density curve follows the shape of the histogram, showing various peaks and valleys.
+
+4. Night Group: The bars are unevenly distributed, with noticeable peaks around -0.75, 0.5, and 1.5. The density curve has corresponding peaks, indicating these are areas with higher concentrations of data points.
+
+The x-axis seems to represent some continuous variable, while the y-axis represents the frequency or probability density of the observations. The differences in the shapes of the histograms and density curves across the four groups suggest variations in the underlying distribution of the variable being measured at different times of the day. Without more context or specific labeling of the axes, we cannot determine what the variable represents or the units of measurement.
+
+
+```{r}
+ct1=table(lda.p, mydata[,12])
+ct1
+diag(prop.table(ct1, 1))
+```
+
+The output shows the proportion of correct predictions for each actual time period (Afternoon, Evening, Morning, Night). For example, the model correctly predicted Afternoon 40.38% of the time, Morning 46.15% of the time, and Night 33.33% of the time. The Evening category has a 0% proportion because there were no correct predictions made by the model for this time period.
+
+Q3: Prediction
+```{r}
+actual <- mydata$dtime
+predicted <- predict(lindis)$class
+is_miss <- actual != predicted
+is_miss
+```
+
+This code is creating a vector `actual` containing the actual values of the `dtime` variable from the `mydata` dataset. Then, it predicts the class labels using the Linear Discriminant Analysis (LDA) model `lindis` for the `dtime` variable, and stores them in the `predicted` vector. 
+
+After that, it compares the `actual` and `predicted` vectors element-wise to check for mismatches. It creates a logical vector `is_miss` which is `TRUE` for elements where the actual value does not match the predicted value, and `FALSE` otherwise. This vector will be used to identify the observations where the LDA model made incorrect predictions.
+
+
+```{r}
+# Convert actual and predicted to character vectors
+a <- as.character(actual[is_miss])
+c <- as.character(predicted[is_miss])
+# Extract posterior probabilities and round them
+p <- round(predict(lindis, newdata = mydata)$posterior[is_miss], 2)
+p
+```
+
+It compares the actual and predicted vectors element-wise to check for mismatches. It creates a logical vector is_miss which is TRUE for elements where the actual value does not match the predicted value, and FALSE otherwise. This vector will be used to identify the observations where the LDA model made incorrect predictions.
+
+Q4: Model Accuracy
+```{r}
+# Compute confusion matrix
+conf_matrix <- table(actual, predicted)
+
+# Compute accuracy
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+
+# Print accuracy
+print(paste("Model Accuracy:", round(accuracy * 100, 2), "%"))
+```
+
+Q5 Residuals
+```{r}
+# Compute residuals
+residuals <- lindis$residuals
+residuals
+```
+
+
+```{r}
+# Combine the data into a data frame
+result <- cbind(p, actual = a, predicted = c)
+result
+```
+
+
+
